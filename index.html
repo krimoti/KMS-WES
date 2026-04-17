@@ -5270,19 +5270,6 @@ function checkAWGcompat(wireSize,termType){
 }
 
 /* ── Update Save/Export button visual state based on validation ── */
-function updateExportButtonState(){
-  const hasErr=hasBlockingErrors();
-  const btn=document.querySelector('.btn-print-topbar');
-  const saveBtn=document.querySelector('[onclick="saveProject()"]');
-  if(btn){
-    btn.style.outline=hasErr?'2px solid #e74c3c':'';
-    btn.title=hasErr?'❌ Fix validation errors before export':'Print / PDF / Excel';
-  }
-  if(saveBtn){
-    saveBtn.style.outline=hasErr?'2px solid #e74c3c':'';
-    saveBtn.title=hasErr?'❌ Fix validation errors before saving':'Save project';
-  }
-}
 
 /* ── Inline AWG check per row ── */
 function checkRowAWG(tr){
@@ -5317,7 +5304,6 @@ function checkRowAWG(tr){
   });
 }
 
-let _valSeverity='warn';
 
 function showPinInfo(el){
   const d=el.dataset;
@@ -6001,6 +5987,71 @@ if(typeof window._eulaLoaded==='undefined'){
     document.addEventListener('DOMContentLoaded', window.eulaCheck);
   } else {
     window.eulaCheck();
+  }
+}
+
+/* ════ VALIDATION SEVERITY ════ */
+let _valSeverity='warn';
+
+function setValSeverity(val){
+  _valSeverity=val;
+  const w=document.getElementById('valSevWarn');
+  const e=document.getElementById('valSevError');
+  if(w) w.checked=(val==='warn');
+  if(e) e.checked=(val==='error');
+  const cur=document.getElementById('valSevCurrent');
+  if(cur){
+    cur.textContent=val==='warn'?'⚠️ Warning':'❌ Error';
+    cur.style.color=val==='warn'?'#f39c12':'#e74c3c';
+  }
+  try{localStorage.setItem('kms-val-severity',val);}catch(e){}
+}
+
+function loadValSeverity(){
+  try{
+    const saved=localStorage.getItem('kms-val-severity');
+    if(saved==='warn'||saved==='error') setValSeverity(saved);
+    else setValSeverity('warn');
+  }catch(e){ setValSeverity('warn'); }
+}
+
+/* ════ BLOCKING ERRORS CHECK ════ */
+function hasBlockingErrors(){
+  if(_valSeverity!=='error') return false;
+  const rows=getRows();
+  for(const r of rows){
+    const ws=(r.wireSize||'').trim();
+    for(const termStr of [r.pin1type,r.pin2type]){
+      if(!ws||!termStr) continue;
+      if(checkAWGcompat(ws,termStr.trim())) return true;
+    }
+  }
+  return false;
+}
+
+function warnBlockingErrors(){
+  const rows=getRows();
+  let count=0;
+  rows.forEach(r=>{
+    const ws=(r.wireSize||'').trim();
+    [r.pin1type,r.pin2type].forEach(t=>{
+      if(ws&&t&&checkAWGcompat(ws,t.trim())) count++;
+    });
+  });
+  alert(`❌ ${count} validation error${count!==1?'s':''} must be fixed before export.\n\nGo to Validation tab to see details,\nor change severity to Warning in System settings.`);
+}
+
+function updateExportButtonState(){
+  const hasErr=hasBlockingErrors();
+  const btn=document.querySelector('.btn-print-topbar');
+  const saveBtn=document.querySelector('[onclick="saveProject()"]');
+  if(btn){
+    btn.style.outline=hasErr?'2px solid #e74c3c':'';
+    btn.title=hasErr?'❌ Fix validation errors before export':'Print / PDF / Excel';
+  }
+  if(saveBtn){
+    saveBtn.style.outline=hasErr?'2px solid #e74c3c':'';
+    saveBtn.title=hasErr?'❌ Fix validation errors before saving':'Save project';
   }
 }
 </script>
