@@ -897,6 +897,19 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
 .h-wire-hi    { stroke: #88ddff !important; opacity: 0.95 !important; stroke-width: 1.6px !important; }
 .h-node-hi    { filter: url(#nh); }
 .h-node-body-hi { fill: rgba(136,221,255,0.12) !important; stroke-width: 2.2px !important; }
+
+/* ── Copyright notice ── */
+body::after{
+  content:'© 2025 KMS·WES — Kricheli Moti & Sarah. All rights reserved. Unauthorized copying prohibited.';
+  display:none;
+}
+@media print{
+  body::after{
+    display:block;position:fixed;bottom:0;left:0;right:0;
+    text-align:center;font-size:8pt;color:#aaa;
+    border-top:1px solid #eee;padding:4px;
+  }
+}
 </style>
 <style id="zoomStyleEl"></style>
 </head>
@@ -988,7 +1001,7 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
 <!-- ══ DASHBOARD ══ -->
 <div id="dash-tab" class="tab-content active">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-    <div class="page-title" style="margin-bottom:0;">🏠 Dashboard <small>Project overview</small></div>
+    <div class="page-title" style="margin-bottom:0;">🏠 Dashboard <small>Project overview</small><button onclick="showHelp('dash-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
     <div style="font-size:11px;color:#8a9ab0;" id="dashTimestamp"></div>
   </div>
   <!-- Workflow steps -->
@@ -1058,7 +1071,7 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
 
 <!-- ══ WIRING ══ -->
 <div id="wiring-tab" class="tab-content">
-<div class="page-title">🔌 Wiring List</div>
+<div class="page-title">🔌 Wiring List<button onclick="showHelp('cover-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button><button onclick="showHelp('wiring-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
 <div class="zoom-bar no-print" style="flex-wrap:wrap;gap:6px;">
   <!-- Search -->
   <div style="display:flex;align-items:center;gap:5px;flex:1;min-width:200px;">
@@ -1207,7 +1220,7 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
 
 <!-- ══ VALIDATION ══ -->
 <div id="val-tab" class="tab-content">
-<div class="page-title no-print">✔ Validation Report</div>
+<div class="page-title no-print">✔ Validation Report<button onclick="showHelp('val-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;" class="no-print">
   <button class="btn btn-sm btn-green" onclick="runValidation()">↺ Run Check</button>
   <button class="btn btn-sm btn-ghost" onclick="clearRowHighlights()">Clear Highlights</button>
@@ -1242,7 +1255,7 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
 
 <!-- ══ LABOR ══ -->
 <div id="labor-tab" class="tab-content">
-<div class="page-title no-print">⏱ Labor Estimate <small>IPC/WHMA-A-620 standard times</small></div>
+<div class="page-title no-print">⏱ Labor Estimate <small>IPC/WHMA-A-620 standard times</small><button onclick="showHelp('labor-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
 <div class="stats-row" id="laborStats"></div>
 <div class="card"><div class="card-body">
   <table class="labor-table">
@@ -1270,7 +1283,7 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
 
 <!-- ══ CONTINUITY TEST ══ -->
 <div id="cont-tab" class="tab-content">
-<div class="page-title no-print">🔬 Wire Continuity Test <small>Technician checklist — print and use at test bench</small></div>
+<div class="page-title no-print">🔬 Wire Continuity Test <small>Technician checklist — print and use at test bench</small><button onclick="showHelp('cont-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
 <div class="stats-row" id="contStats"></div>
 <div class="card no-print" style="margin-bottom:12px;">
   <div class="card-body" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -1293,7 +1306,7 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
 
 <!-- ══ CONNECTOR FACE ══ -->
 <div id="face-tab" class="tab-content">
-<div class="page-title no-print">🔌 Connector Face View <small>Visual pin layout — verify before assembly</small></div>
+<div class="page-title no-print">🔌 Connector Face View <small>Visual pin layout — verify before assembly</small><button onclick="showHelp('face-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
 <div class="card no-print" style="margin-bottom:12px;">
   <div class="card-body" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
     <label style="font-size:12px;font-weight:600;">Connector:</label>
@@ -1416,7 +1429,7 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
 
 <!-- ══ DB ══ -->
 <div id="db-tab" class="tab-content">
-<div class="page-title no-print">🗃️ Database <small>Terminals, Wires, Markers, Connectors</small></div>
+<div class="page-title no-print">🗃️ Database <small>Terminals, Wires, Markers, Connectors</small><button onclick="showHelp('db-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
   <div class="sys-section">
     <h3>🔩 DB TERM</h3>
@@ -1448,7 +1461,7 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
   <div class="sys-section">
     <h3>🔌 DB CONNECTOR</h3>
     <p style="font-size:11px;color:#7f8c8d;margin:0 0 7px;">Auto-registered when you type a new connector name.</p>
-    <table class="db-table"><thead><tr><th>Connector Name</th><th>P/N</th><th style="width:70px">Total Pins</th><th style="width:44px" class="no-print">Del</th></tr></thead><tbody id="dbConnBody"></tbody></table>
+    <table class="db-table"><thead><tr><th>Connector Name</th><th>P/N</th><th style="width:55px">Pins</th><th style="width:55px">Rows</th><th style="width:55px">Cols</th><th style="width:80px">Shape</th><th style="width:44px" class="no-print">Del</th></tr></thead><tbody id="dbConnBody"></tbody></table>
     <button class="btn btn-sm btn-green" onclick="addDBConnRow()">＋ Add</button>
   </div>
 </div>
@@ -1456,7 +1469,7 @@ tr.search-match td{background:rgba(255,235,59,.12)!important;}
 
 <!-- ══ SYSTEM ══ -->
 <div id="system-tab" class="tab-content">
-<div class="page-title no-print">⚙️ System <small>Format · Columns · Import/Export · Search</small></div>
+<div class="page-title no-print">⚙️ System <small>Format · Columns · Import/Export · Search</small><button onclick="showHelp('system-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
 
 <!-- Row 1: Wire Format + Column Visibility -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
@@ -1684,6 +1697,7 @@ let _dirty=false,_saveTimer=null,_pendingConn='',_lastValErrors=0,_lastValWarns=
 
 /* ═══ INIT ═══ */
 window.onload=()=>{
+  eulaCheck();
   if(!loadFromLS()){loadSampleDBs();addWiringRow();}
   initSettings();applyGlows();updateFormatPreview();
   updateTopbar();buildDashboard();setTimeout(()=>{applyWiringSearch();setTableZoom(100);updateRowCount();},150);
@@ -2014,8 +2028,8 @@ function renderDBMarker(){const b=document.getElementById('dbMarkerBody');b.inne
 function addDBMarkerRow(){dbMarker.push({size:'',pn:''});renderDBMarker();markDirty();}
 function delDBMarkerRow(i){dbMarker.splice(i,1);renderDBMarker();markDirty();}
 
-function renderDBConn(){const b=document.getElementById('dbConnBody');b.innerHTML='';dbConn.forEach((r,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><input value="${escH(r.name)}" oninput="dbConn[${i}].name=this.value;markDirty()"></td><td><input value="${escH(r.pn||'')}" oninput="dbConn[${i}].pn=this.value;markDirty()"></td><td><input type="number" value="${r.pins||0}" min="1" oninput="dbConn[${i}].pins=parseInt(this.value)||0;markDirty()"></td><td class="no-print" style="text-align:center;"><button class="btn-delete" style="margin:0" onclick="delDBConnRow(${i})">🗑</button></td>`;b.appendChild(tr);});}
-function addDBConnRow(){dbConn.push({name:'',pn:'',pins:0});renderDBConn();markDirty();}
+function renderDBConn(){const b=document.getElementById('dbConnBody');b.innerHTML='';dbConn.forEach((r,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><input value="${escH(r.name)}" oninput="dbConn[${i}].name=this.value;markDirty()" style="min-width:80px;"></td><td><input value="${escH(r.pn||'')}" oninput="dbConn[${i}].pn=this.value;markDirty()" style="min-width:70px;"></td><td><input type="number" value="${r.pins||0}" min="0" style="width:48px;" oninput="dbConn[${i}].pins=parseInt(this.value)||0;markDirty()"></td><td><input type="number" value="${r.layoutRows||0}" min="0" placeholder="auto" style="width:48px;" oninput="dbConn[${i}].layoutRows=parseInt(this.value)||0;markDirty()"></td><td><input type="number" value="${r.layoutCols||0}" min="0" placeholder="auto" style="width:48px;" oninput="dbConn[${i}].layoutCols=parseInt(this.value)||0;markDirty()"></td><td><select style="width:72px;font-size:11px;padding:2px;" onchange="dbConn[${i}].shape=this.value;markDirty()"><option value="grid" ${(r.shape||'grid')==='grid'?'selected':''}>Grid</option><option value="circular" ${r.shape==='circular'?'selected':''}>Circular</option><option value="dsub" ${r.shape==='dsub'?'selected':''}>D-Sub</option></select></td><td class="no-print" style="text-align:center;"><button class="btn-delete" style="margin:0" onclick="delDBConnRow(${i})">🗑</button></td>`;b.appendChild(tr);});}
+function addDBConnRow(){dbConn.push({name:'',pn:'',pins:0,layoutRows:0,layoutCols:0,shape:'grid'});renderDBConn();markDirty();}
 function delDBConnRow(i){dbConn.splice(i,1);renderDBConn();markDirty();}
 function renderAllDBs(){renderDBTerm();renderDBWire();renderDBMarker();renderDBConn();refreshDBLists();}
 function clearDB(type){if(!confirm('Clear all DB '+type.toUpperCase()+'?'))return;if(type==='term'){dbTerm=[];renderDBTerm();}else{dbWire=[];renderDBWire();}updateWiringLookups();markDirty();}
@@ -2024,7 +2038,7 @@ function exportDB(type){let csv='\uFEFF';if(type==='term'){csv+='TYPE,PIN_PN,EXP
 function refreshDBLists(){setDL(DL_TERM,dbTerm.map(r=>r.type));setDL(DL_WIRE,dbWire.map(r=>r.size));}
 function setDL(id,items){let dl=document.getElementById(id);if(!dl){dl=document.createElement('datalist');dl.id=id;document.body.appendChild(dl);}dl.innerHTML=items.map(v=>`<option value="${escH(v)}">`).join('');}
 function checkNewConn(name){if(!name||dbConn.find(c=>c.name.toLowerCase()===name.toLowerCase()))return;_pendingConn=name;document.getElementById('connPinTitle').textContent='New connector: '+name;document.getElementById('connPinInput').value=10;document.getElementById('connPinModal').classList.add('open');}
-function saveConnPins(){const pins=parseInt(document.getElementById('connPinInput').value)||0;dbConn.push({name:_pendingConn,pn:'',pins});renderDBConn();markDirty();document.getElementById('connPinModal').classList.remove('open');_pendingConn='';}
+function saveConnPins(){const pins=parseInt(document.getElementById('connPinInput').value)||0;dbConn.push({name:_pendingConn,pn:'',pins,layoutRows:0,layoutCols:0,shape:'grid'});renderDBConn();markDirty();document.getElementById('connPinModal').classList.remove('open');_pendingConn='';}
 
 /* ═══ WIRING TABLE ═══ */
 function addWiringRow(data,suppressDirty){
@@ -5455,12 +5469,12 @@ function buildFaceView(){
     if(p1.comp&&p1.pin){
       if(!connPins[p1.comp]) connPins[p1.comp]={};
       connPins[p1.comp][p1.pin]={wireNo:r.wireNo,wireSize:r.wireSize,
-        to:p2.comp,toPin:p2.pin,type:r.pin1type,color:r.wireSize};
+        to:p2.comp,toPin:p2.pin,type:r.pin1type};
     }
     if(p2.comp&&p2.pin){
       if(!connPins[p2.comp]) connPins[p2.comp]={};
       connPins[p2.comp][p2.pin]={wireNo:r.wireNo,wireSize:r.wireSize,
-        to:p1.comp,toPin:p1.pin,type:r.pin2type,color:r.wireSize};
+        to:p1.comp,toPin:p1.pin,type:r.pin2type};
     }
   });
 
@@ -5477,6 +5491,23 @@ function buildFaceView(){
   const targetConns=showAll?connNames:[sel?.value||connNames[0]].filter(Boolean);
   if(!targetConns.length){body.innerHTML='<p style="padding:20px;color:#aaa;">Select a connector above.</p>';return;}
 
+  // Wire color helper
+  function wireCol(s){
+    const u=(s||'').toUpperCase();
+    if(/RED/.test(u)) return '#e74c3c';
+    if(/BLK|BLACK/.test(u)) return '#2c3e50';
+    if(/WHT|WHITE/.test(u)) return '#bdc3c7';
+    if(/GRN|GREEN/.test(u)) return '#27ae60';
+    if(/YEL|YELLOW/.test(u)) return '#f1c40f';
+    if(/BLU|BLUE/.test(u)) return '#3498db';
+    if(/ORG|ORANGE/.test(u)) return '#e67e22';
+    if(/VIO|VIOLET|PUR/.test(u)) return '#9b59b6';
+    if(/GRY|GRAY|GREY/.test(u)) return '#95a5a6';
+    if(/BRN|BROWN/.test(u)) return '#8B4513';
+    if(/PNK|PINK/.test(u)) return '#ff69b4';
+    return '#607D8B';
+  }
+
   let html='<div style="display:flex;flex-wrap:wrap;gap:20px;padding:4px;">';
 
   targetConns.forEach(conn=>{
@@ -5485,83 +5516,533 @@ function buildFaceView(){
     const totalPins=pinNums.length;
     if(!totalPins) return;
 
-    // Determine grid layout
-    const cols=Math.ceil(Math.sqrt(totalPins*1.5));
-    const rows_g=Math.ceil(totalPins/cols);
+    // Get layout from DB
+    const dbEntry=dbConn.find(d=>d.name.toLowerCase()===conn.toLowerCase());
+    const shape=dbEntry?.shape||'grid';
+    let lRows=parseInt(dbEntry?.layoutRows)||0;
+    let lCols=parseInt(dbEntry?.layoutCols)||0;
 
-    // Wire color extraction
-    function wireCol(wireSize){
-      const u=(wireSize||'').toUpperCase();
-      if(/RED/.test(u)) return '#e74c3c';
-      if(/BLK|BLACK/.test(u)) return '#2c3e50';
-      if(/WHT|WHITE/.test(u)) return '#ecf0f1';
-      if(/GRN|GREEN/.test(u)) return '#27ae60';
-      if(/YEL|YELLOW/.test(u)) return '#f1c40f';
-      if(/BLU|BLUE/.test(u)) return '#3498db';
-      if(/ORG|ORANGE/.test(u)) return '#e67e22';
-      if(/VIO|VIOLET|PUR/.test(u)) return '#9b59b6';
-      if(/GRY|GRAY|GREY/.test(u)) return '#95a5a6';
-      if(/BRN|BROWN/.test(u)) return '#8B4513';
-      if(/PNK|PINK/.test(u)) return '#ff69b4';
-      return '#607D8B';
+    // Auto-calculate if not set
+    if(!lRows||!lCols){
+      if(shape==='dsub'){
+        // D-Sub standard layouts
+        if(totalPins<=9){lRows=2;lCols=5;}
+        else if(totalPins<=15){lRows=2;lCols=8;}
+        else if(totalPins<=25){lRows=3;lCols=9;}
+        else if(totalPins<=37){lRows=3;lCols=13;}
+        else{lRows=4;lCols=17;}
+      } else if(shape==='circular'){
+        lRows=1; lCols=totalPins; // will use circular logic
+      } else {
+        // Grid auto
+        lCols=Math.ceil(Math.sqrt(totalPins*1.5));
+        lRows=Math.ceil(totalPins/lCols);
+      }
     }
 
-    html+=`<div style="background:#fff;border:1px solid #dde4ef;border-radius:10px;padding:14px;min-width:240px;break-inside:avoid;">
+    // Front view reverses column order (mirror)
+    const orderedPins=viewSide==='front'?[...pinNums].reverse():pinNums;
+
+    // Build pin cells
+    function pinCell(pin){
+      const w=pins[pin];
+      const col=w?wireCol(w.wireSize):'#dde4ef';
+      const occ=!!w;
+      const size=shape==='circular'?42:38;
+      const radius=shape==='circular'?'50%':'8px';
+      return `<div data-pin="${escH(pin||'')}"
+        data-wn="${escH(w?.wireNo||'')}" data-size="${escH(w?.wireSize||'')}"
+        data-to="${escH(w?.to||'')}" data-topin="${escH(w?.toPin||'')}"
+        data-type="${escH(w?.type||'')}"
+        ${occ?'onclick="showPinInfo(this)"':''}
+        title="${occ?`W${w.wireNo} → ${w.to}/${w.toPin}`:''}"
+        style="width:${size}px;height:${size}px;
+          border-radius:${radius};
+          border:2px solid ${occ?col:'#dde4ef'};
+          background:${occ?col+'22':'#f8f9fa'};
+          display:flex;flex-direction:column;
+          align-items:center;justify-content:center;
+          cursor:${occ?'pointer':'default'};
+          transition:transform .1s, box-shadow .1s;"
+        ${occ?`onmouseenter="this.style.transform='scale(1.12)';this.style.boxShadow='0 0 8px ${col}88'"
+               onmouseleave="this.style.transform='';this.style.boxShadow=''"`:''}>
+        <span style="font-size:9px;font-weight:700;color:${occ?col:'#ccc'};">${escH(pin)}</span>
+        ${occ?`<span style="font-size:7px;color:${col};overflow:hidden;max-width:34px;text-overflow:ellipsis;white-space:nowrap;">${escH(w.wireNo)}</span>`:''}
+      </div>`;
+    }
+
+    // Build grid layout
+    let gridHtml='';
+    if(shape==='circular'){
+      // Circular: pins arranged in a circle
+      const R=Math.max(60, totalPins*8);
+      const svgSize=R*2+60;
+      gridHtml=`<div style="position:relative;width:${svgSize}px;height:${svgSize}px;margin:0 auto;">
+        <div style="position:absolute;inset:0;border-radius:50%;border:2px solid #dde4ef;background:#f8f9fa;"></div>`;
+      orderedPins.forEach((pin,i)=>{
+        const angle=(2*Math.PI*i/totalPins)-Math.PI/2;
+        const x=Math.round(svgSize/2+R*Math.cos(angle)-19);
+        const y=Math.round(svgSize/2+R*Math.sin(angle)-19);
+        const w=pins[pin];
+        const col=w?wireCol(w.wireSize):'#dde4ef';
+        const occ=!!w;
+        gridHtml+=`<div data-pin="${escH(pin)}"
+          data-wn="${escH(w?.wireNo||'')}" data-size="${escH(w?.wireSize||'')}"
+          data-to="${escH(w?.to||'')}" data-topin="${escH(w?.toPin||'')}"
+          data-type="${escH(w?.type||'')}"
+          ${occ?'onclick="showPinInfo(this)"':''}
+          style="position:absolute;left:${x}px;top:${y}px;
+            width:36px;height:36px;border-radius:50%;
+            border:2px solid ${occ?col:'#dde4ef'};
+            background:${occ?col+'22':'#f8f9fa'};
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            cursor:${occ?'pointer':'default'};transition:transform .1s;"
+          ${occ?`onmouseenter="this.style.transform='scale(1.15)'" onmouseleave="this.style.transform=''"`:''}>
+          <span style="font-size:9px;font-weight:700;color:${occ?col:'#ccc'};">${escH(pin)}</span>
+          ${occ?`<span style="font-size:7px;color:${col};">${escH(w.wireNo)}</span>`:''}
+        </div>`;
+      });
+      gridHtml+='</div>';
+    } else {
+      // Grid / D-Sub
+      gridHtml=`<div style="display:grid;grid-template-columns:repeat(${lCols},1fr);gap:4px;margin-bottom:10px;">`;
+      orderedPins.forEach(pin=>{ gridHtml+=pinCell(pin); });
+      gridHtml+='</div>';
+    }
+
+    html+=`<div style="background:#fff;border:1px solid #dde4ef;border-radius:10px;padding:14px;min-width:220px;break-inside:avoid;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
         <span style="font-size:13px;font-weight:700;color:var(--primary);">🔌 ${escH(conn)}</span>
-        <span style="font-size:10px;color:#aaa;background:#f0f4f8;padding:2px 6px;border-radius:4px;">${totalPins}P · ${viewSide==='front'?'Mating Face':'Wire Entry'}</span>
+        <span style="font-size:10px;color:#aaa;background:#f0f4f8;padding:2px 6px;border-radius:4px;">
+          ${totalPins}P · ${viewSide==='front'?'Mating Face':'Wire Entry'} · ${shape.toUpperCase()}
+          ${(dbEntry?.layoutRows&&dbEntry?.layoutCols)?` ${lRows}×${lCols}`:''}
+        </span>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:4px;margin-bottom:10px;">`;
-
-    // Generate pin cells — front view mirrors layout
-    const orderedPins=viewSide==='front'?[...pinNums].reverse():pinNums;
-    orderedPins.forEach(pin=>{
-      const w=pins[pin];
-      const col=w?wireCol(w.color):'#dde4ef';
-      const occupied=!!w;
-      html+=`<div title="${occupied?`W${w.wireNo} → ${w.to}/${w.toPin}\n${w.type||''}`:''}"
-        style="width:38px;height:38px;border-radius:50%;border:2px solid ${occupied?col:'#dde4ef'};
-        background:${occupied?col+'22':'#f8f9fa'};display:flex;flex-direction:column;
-        align-items:center;justify-content:center;cursor:${occupied?'pointer':'default'};
-        position:relative;transition:transform .1s;"
-        ${occupied?`onclick="showPinInfo(this)"
-        data-pin="${escH(pin)}" data-wn="${escH(w.wireNo)}" data-size="${escH(w.wireSize)}" data-to="${escH(w.to||'')}" data-topin="${escH(w.toPin||'')}" data-type="${escH(w.type||'')}"`:''}>
-        <span style="font-size:9px;font-weight:700;color:${occupied?col:'#ccc'};">${escH(pin)}</span>
-        ${occupied?`<span style="font-size:7px;color:${col};overflow:hidden;max-width:32px;text-overflow:ellipsis;white-space:nowrap;">${escH(w.wireNo)}</span>`:''}
-      </div>`;
-    });
-
-    html+=`</div>
-      <!-- Legend for this connector -->
-      <div style="font-size:9px;color:#aaa;border-top:1px solid #edf0f7;padding-top:6px;">
+      ${gridHtml}
+      <div style="font-size:9px;color:#aaa;border-top:1px solid #edf0f7;padding-top:6px;max-height:120px;overflow-y:auto;">
         ${pinNums.map(pin=>{
           const w=pins[pin];
           return w?`<div style="display:flex;align-items:center;gap:4px;margin:1px 0;">
-            <span style="width:8px;height:8px;border-radius:50%;background:${wireCol(w.color)};display:inline-block;flex-shrink:0;"></span>
-            <span style="font-family:monospace;">P${pin}</span>
-            <span style="color:#3498db;">${escH(w.wireNo)}</span>
+            <span style="width:8px;height:8px;border-radius:50%;background:${wireCol(w.wireSize)};display:inline-block;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-weight:600;">P${pin}</span>
+            <span style="color:var(--primary);">${escH(w.wireNo)}</span>
             <span>→</span><span>${escH(w.to||'')}/${escH(w.toPin||'')}</span>
+            <span style="color:#aaa;">${escH(w.type||'')}</span>
           </div>`:'';
         }).join('')}
       </div>
+      ${!dbEntry?`<div style="font-size:9px;color:#f39c12;margin-top:6px;">⚠️ No DB entry — add in Database tab for custom layout</div>`:''}
     </div>`;
   });
 
   html+='</div>';
   body.innerHTML=html;
 }
+
+
+
+/* ════════════════════════════════════════════════════════
+   KMS·WES HELP SYSTEM
+   Bilingual (EN/HE) contextual help for every tab
+   ════════════════════════════════════════════════════════ */
+
+const KMS_HELP = {
+  'dash-tab': {
+    en: {
+      title: 'Dashboard',
+      sections: [
+        { head: 'Overview', body: 'The Dashboard gives you a real-time summary of your project. It shows wire count, connector count, validation status, estimated labor time, and quick links to all tabs.' },
+        { head: 'Project Status Cards', body: 'Each card is clickable — it takes you directly to the relevant tab. Red cards indicate issues that need attention.' },
+        { head: 'Validation Badge', body: 'If you see ❌ Errors or ⚠️ Warnings, click the badge to open the Validation Report. Fix all errors before releasing the project.' },
+      ]
+    },
+    he: {
+      title: 'לוח בקרה',
+      sections: [
+        { head: 'סקירה כללית', body: 'לוח הבקרה מציג סיכום פרויקט בזמן אמת: מספר חוטים, קונקטורים, סטטוס ולידציה, הערכת עבודה וקישורים מהירים לכל הטאבים.' },
+        { head: 'כרטיסי סטטוס', body: 'כל כרטיס ניתן ללחיצה — לוחץ ועובר ישירות לטאב הרלוונטי. כרטיסים אדומים מציינים בעיות שדורשות טיפול.' },
+        { head: 'תג ולידציה', body: 'אם מופיע ❌ שגיאות או ⚠️ אזהרות — לחץ על התג לפתיחת דוח הולידציה. יש לתקן את כל השגיאות לפני שחרור הפרויקט.' },
+      ]
+    }
+  },
+  'cover-tab': {
+    en: {
+      title: 'Cover Page',
+      sections: [
+        { head: 'Purpose', body: 'The Cover Page is the official first page of your wiring document. Fill in Project Name, Part Number, and Date. These appear in all printed documents.' },
+        { head: 'Revision Table', body: 'Add a row for every revision. Fill in Rev number, Date, Author, Status, and Description of changes. Click ✔ to approve and lock a revision.' },
+        { head: 'Project Type', body: 'Select Development or Production. This affects the Labor Estimate factor (×1.5 for development, ×1.0 for production).' },
+        { head: 'Important', body: 'Once a revision is approved (✔), all other rows are locked. Delete the approved row to unlock editing.' },
+      ]
+    },
+    he: {
+      title: 'עמוד שער',
+      sections: [
+        { head: 'מטרה', body: 'עמוד השער הוא הדף הרשמי הראשון של מסמך החיווט. מלא שם פרויקט, מספר חלק ותאריך — אלה מופיעים בכל המסמכים המודפסים.' },
+        { head: 'טבלת גרסאות', body: 'הוסף שורה לכל גרסה. מלא מספר גרסה, תאריך, מבצע, סטטוס ותיאור שינויים. לחץ ✔ לאישור ונעילת גרסה.' },
+        { head: 'סוג פרויקט', body: 'בחר פיתוח (Development) או ייצור (Production). זה משפיע על מקדם הערכת העבודה (×1.5 לפיתוח, ×1.0 לייצור).' },
+        { head: 'חשוב', body: 'לאחר אישור גרסה (✔), כל השורות האחרות ננעלות. מחק את השורה המאושרת כדי לאפשר עריכה מחדש.' },
+      ]
+    }
+  },
+  'wiring-tab': {
+    en: {
+      title: 'Wiring List',
+      sections: [
+        { head: 'Purpose', body: 'The Wiring List is the core of KMS·WES. Every wire in the harness gets one row. Fill in wire number, connectors, pin numbers, wire size, and terminal types.' },
+        { head: 'Auto-fill columns', body: 'Columns marked (auto) fill automatically from the Database: PIN P/N fills when you select a PIN TYPE. WIRE P/N fills when you select WIRE SIZE. EXP A/B fill from terminal exposure settings.' },
+        { head: 'CMP:PIN format', body: 'The CMP:PIN1 and CMP:PIN2 columns MUST use format: CONNECTOR_NAME/PIN_NUMBER (e.g. J13/1, PDU-P1/3, SPLICE5/A). This format drives the Harness Diagram, Continuity Test, and Connector Face View.' },
+        { head: 'Wire numbering', body: 'Wire numbers are assigned automatically. Use the Renumber button to fix gaps. The format (prefix, start number, padding) is set in the System tab.' },
+        { head: 'Search & Filter', body: 'Type in the search box to filter rows. Search works on any column. Use the → Harness button to jump to the Harness Diagram with the same filter active.' },
+        { head: 'Context menu', body: 'Right-click any row for: Insert Above, Insert Below, Duplicate, Delete. Use Undo/Redo buttons for all changes.' },
+        { head: 'AWG Validation', body: 'When you select a terminal type and wire size, the tool automatically checks AWG compatibility. Incompatible combinations are highlighted in red (Error) or yellow (Warning) based on your System setting.' },
+      ]
+    },
+    he: {
+      title: 'רשימת חיווט',
+      sections: [
+        { head: 'מטרה', body: 'רשימת החיווט היא לב הכלי. לכל חוט ברתמה — שורה אחת. מלא מספר חוט, קונקטורים, מספרי פינים, גודל חוט וסוגי נעליים.' },
+        { head: 'עמודות אוטומטיות', body: 'עמודות המסומנות (auto) מתמלאות אוטומטית מה-Database: PIN P/N מתמלא לפי PIN TYPE שנבחר. WIRE P/N מתמלא לפי WIRE SIZE. EXP A/B מתמלאות מהגדרות חשיפת הנעל.' },
+        { head: 'פורמט CMP:PIN', body: 'עמודות CMP:PIN1 ו-CMP:PIN2 חייבות להיות בפורמט: שם_קונקטור/מספר_פין (למשל J13/1, PDU-P1/3, SPLICE5/A). פורמט זה מניע את ה-Harness Diagram, בדיקת רציפות ותצוגת פני הקונקטור.' },
+        { head: 'מספור חוטים', body: 'מספרי חוטים מוקצים אוטומטית. השתמש בכפתור Renumber לתיקון פערים. הפורמט (קידומת, מספר התחלה, ריפוד) מוגדר בטאב System.' },
+        { head: 'חיפוש וסינון', body: 'הקלד בשדה החיפוש לסינון שורות — עובד על כל עמודה. השתמש בכפתור → Harness למעבר לסכמה עם אותו סינון פעיל.' },
+        { head: 'תפריט קליק ימני', body: 'לחיצה ימנית על שורה: הוסף מעל, הוסף מתחת, שכפל, מחק. השתמש בכפתורי Undo/Redo לכל שינוי.' },
+        { head: 'ולידציה AWG', body: 'כשבוחרים סוג נעל וגודל חוט, הכלי בודק אוטומטית התאמת AWG. שילובים לא תואמים מסומנים באדום (שגיאה) או צהוב (אזהרה) לפי הגדרת ה-System.' },
+      ]
+    }
+  },
+  'val-tab': {
+    en: {
+      title: 'Validation Report',
+      sections: [
+        { head: 'Purpose', body: 'Validates the entire wiring list for errors and warnings. Run validation before printing or exporting.' },
+        { head: 'Checks performed', body: '• Duplicate wire numbers\n• Missing CMP:PIN values\n• Duplicate CMP:PIN assignments (possible short circuit)\n• AWG compatibility between wire size and terminal type\n• Empty required fields' },
+        { head: 'Severity setting', body: 'AWG mismatches can be set as Warning (yellow, allows export) or Error (red, blocks export). Change this in the System tab → Validation Severity.' },
+        { head: 'Jump to row', body: 'Click any issue in the report to jump directly to the offending row in the Wiring List.' },
+      ]
+    },
+    he: {
+      title: 'דוח ולידציה',
+      sections: [
+        { head: 'מטרה', body: 'מאמת את רשימת החיווט כולה לשגיאות ואזהרות. הפעל ולידציה לפני הדפסה או ייצוא.' },
+        { head: 'בדיקות שמבוצעות', body: '• מספרי חוט כפולים\n• ערכי CMP:PIN חסרים\n• שיבוצי CMP:PIN כפולים (קצר אפשרי)\n• התאמת AWG בין גודל חוט לסוג נעל\n• שדות חובה ריקים' },
+        { head: 'הגדרת חומרה', body: 'אי-התאמות AWG ניתן להגדיר כאזהרה (צהוב, מאפשר ייצוא) או שגיאה (אדום, חוסם ייצוא). שנה זאת בטאב System → Validation Severity.' },
+        { head: 'מעבר לשורה', body: 'לחץ על כל בעיה בדוח למעבר ישיר לשורה הבעייתית ברשימת החיווט.' },
+      ]
+    }
+  },
+  'harness-tab': {
+    en: {
+      title: 'Harness Diagram',
+      sections: [
+        { head: 'Purpose', body: 'Visual schematic of the harness — connectors and wires arranged left-to-right by signal flow. Used for design review and troubleshooting.' },
+        { head: 'Layouts', body: '• Trunk: traditional harness trunk-and-branch view\n• Grid: connectors in a regular grid\n• Circular: connectors around a circle\n• 3D Explode: hierarchical schematic with orthogonal routing (PDU → Splice → Endpoints)' },
+        { head: '3D Explode mode', body: 'The most useful mode for complex harnesses. Connectors are sorted into layers by type. Wires run through dedicated gap strips between columns — no wire passes through a connector block.' },
+        { head: 'Search', body: 'Type a connector name (e.g. J13) or wire number to isolate it. Only that connector and its connections are shown. Clears automatically after 10 seconds.' },
+        { head: 'Focus Mode', body: 'Click any connector to enter Focus Mode — see only that connector and what it connects to. Click again or click background to exit.' },
+        { head: 'Hover', body: 'Hover over any connector to highlight its wires and connected neighbors. A tooltip shows wire count.' },
+        { head: 'Requirement', body: 'CMP:PIN1 and CMP:PIN2 in the Wiring List must be filled with format CONNECTOR/PIN (e.g. J13/1) for the diagram to be accurate.' },
+      ]
+    },
+    he: {
+      title: 'תרשים רתמה',
+      sections: [
+        { head: 'מטרה', body: 'סכמה ויזואלית של הרתמה — קונקטורים וחוטים מסודרים משמאל לימין לפי זרימת האות. משמש לסקירת עיצוב ופתרון תקלות.' },
+        { head: 'מצבי תצוגה', body: '• Trunk: תצוגת גזע-וענפים מסורתית\n• Grid: קונקטורים ברשת סדירה\n• Circular: קונקטורים סביב עיגול\n• 3D Explode: סכמה היררכית עם ניתוב אורתוגונלי (PDU → Splice → Endpoints)' },
+        { head: 'מצב 3D Explode', body: 'המצב השימושי ביותר לרתמות מורכבות. קונקטורים ממוינים לשכבות לפי סוג. חוטים עוברים ברצועות ייעודיות בין עמודות — אף חוט לא עובר דרך בלוק קונקטור.' },
+        { head: 'חיפוש', body: 'הקלד שם קונקטור (כמו J13) או מספר חוט לבידודו. רק הקונקטור וחיבוריו מוצגים. מתאפס אוטומטית אחרי 10 שניות.' },
+        { head: 'מצב Focus', body: 'לחץ על קונקטור כלשהו למעבר ל-Focus Mode — רואים רק אותו ואת כל מה שמחובר אליו. לחץ שוב או על הרקע ליציאה.' },
+        { head: 'Hover', body: 'עמוד על קונקטור להדגשת חוטיו ושכניו המחוברים. Tooltip מציג מספר חוטים.' },
+        { head: 'דרישה מוקדמת', body: 'CMP:PIN1 ו-CMP:PIN2 ברשימת החיווט חייבים להיות מלאים בפורמט CONNECTOR/PIN (כמו J13/1) כדי שהתרשים יהיה מדויק.' },
+      ]
+    }
+  },
+  'cont-tab': {
+    en: {
+      title: 'Continuity Test',
+      sections: [
+        { head: 'Purpose', body: 'Generates a printable test sheet for the technician at the test bench. Use this after assembly to verify every wire is connected correctly.' },
+        { head: 'How to use', body: '1. Select Group by: Connector (recommended) or Wire Number\n2. Select which wires to show (All / Signal / Power)\n3. Click Print Test Sheet\n4. Technician uses a multimeter to test each row and checks the box ☐' },
+        { head: 'Group by Connector', body: 'Shows all pins of each connector with their wire numbers and destinations. Best for working connector-by-connector on the bench.' },
+        { head: 'Group by Wire', body: 'Shows each wire as a row: From connector/pin → To connector/pin. Best for tracing individual wires.' },
+        { head: 'Requirement', body: 'CMP:PIN1 and CMP:PIN2 must be filled in format CONNECTOR/PIN (e.g. J13/1).' },
+      ]
+    },
+    he: {
+      title: 'בדיקת רציפות',
+      sections: [
+        { head: 'מטרה', body: 'מפיק גיליון בדיקה להדפסה לטכנאי בשולחן הבדיקה. משמש לאחר הרכבה לאימות שכל חוט מחובר נכון.' },
+        { head: 'כיצד להשתמש', body: '1. בחר קבץ לפי: קונקטור (מומלץ) או מספר חוט\n2. בחר אילו חוטים להציג (הכל / אות / כוח)\n3. לחץ הדפס גיליון בדיקה\n4. הטכנאי משתמש במולטימטר לבדיקת כל שורה ומסמן ☐' },
+        { head: 'קיבוץ לפי קונקטור', body: 'מציג את כל הפינים של כל קונקטור עם מספרי החוטים והיעדים שלהם. מתאים לעבודה קונקטור-קונקטור בשולחן.' },
+        { head: 'קיבוץ לפי חוט', body: 'מציג כל חוט כשורה: מ-קונקטור/פין → ל-קונקטור/פין. מתאים למעקב אחר חוטים בודדים.' },
+        { head: 'דרישה מוקדמת', body: 'CMP:PIN1 ו-CMP:PIN2 חייבים להיות מלאים בפורמט CONNECTOR/PIN (כמו J13/1).' },
+      ]
+    }
+  },
+  'face-tab': {
+    en: {
+      title: 'Connector Face View',
+      sections: [
+        { head: 'Purpose', body: 'Shows a visual diagram of the connector face with all pins mapped to their wires. Use before assembly to verify correct pin insertion.' },
+        { head: 'Selecting a connector', body: 'Choose a connector from the dropdown. Only connectors that appear in the Wiring List (with pin numbers in CMP:PIN) are shown.' },
+        { head: 'Front vs Rear view', body: '• Front (Mating Face): view from the front of the connector — pins are mirrored. Use for mating verification.\n• Rear (Wire Entry): view from the rear — pins in natural insertion order. Use during assembly.' },
+        { head: 'Layout shapes', body: 'Set the connector layout in the Database tab → DB Connectors:\n• Grid: rectangular grid (default, e.g. Molex)\n• Circular: pins arranged in a circle (e.g. MIL-38999)\n• D-Sub: D-subminiature layout (auto-detects rows from pin count)' },
+        { head: 'Setting layout in DB', body: 'Go to Database tab → DB Connectors. For each connector add: Rows, Cols, and Shape. If left at 0, the layout is calculated automatically from pin count.' },
+        { head: 'Pin colors', body: 'Each pin is colored by wire color extracted from the wire size field (e.g. RED_22AWG → red, BLK_22AWG → black). Click any occupied pin to see full details.' },
+        { head: 'Warning', body: 'If a connector has no DB entry, a warning is shown. Add it in the Database tab for custom layout.' },
+      ]
+    },
+    he: {
+      title: 'תצוגת פני קונקטור',
+      sections: [
+        { head: 'מטרה', body: 'מציג תרשים ויזואלי של פני הקונקטור עם כל הפינים ממופים לחוטיהם. השתמש לפני הרכבה לאימות הכנסת פינים נכונה.' },
+        { head: 'בחירת קונקטור', body: 'בחר קונקטור מהרשימה הנפתחת. רק קונקטורים שמופיעים ברשימת החיווט (עם מספרי פינים ב-CMP:PIN) מוצגים.' },
+        { head: 'תצוגה קדמית מול אחורית', body: '• Front (פנים): תצוגה מפני הקונקטור — פינים מוכפלים (מראה). לאימות הברגה.\n• Rear (אחור): תצוגה מאחורי הקונקטור — פינים בסדר הכנסה טבעי. לשימוש בהרכבה.' },
+        { head: 'צורות layout', body: 'הגדר את ה-layout בטאב Database → DB Connectors:\n• Grid: רשת מלבנית (ברירת מחדל, כמו Molex)\n• Circular: פינים בעיגול (כמו MIL-38999)\n• D-Sub: פריסת D-Sub (מחשב שורות אוטומטית לפי כמות פינים)' },
+        { head: 'הגדרת layout ב-DB', body: 'עבור לטאב Database → DB Connectors. לכל קונקטור הוסף: Rows, Cols, ו-Shape. אם משאירים 0 — ה-layout מחושב אוטומטית לפי כמות הפינים.' },
+        { head: 'צבעי פינים', body: 'כל פין צבוע לפי צבע החוט המחולץ משדה גודל החוט (למשל RED_22AWG → אדום, BLK_22AWG → שחור). לחץ על פין תפוס לפרטים מלאים.' },
+        { head: 'אזהרה', body: 'אם לקונקטור אין ערך ב-DB, מופיעה אזהרה. הוסף אותו בטאב Database ל-layout מותאם אישית.' },
+      ]
+    }
+  },
+  'labor-tab': {
+    en: {
+      title: 'Labor Estimate',
+      sections: [
+        { head: 'Purpose', body: 'Calculates estimated assembly time based on IPC/WHMA-A-620 standard times. Multiply by your hourly rate for cost estimation.' },
+        { head: 'How it works', body: 'Each operation (cutting, stripping, crimping, etc.) has a unit time in minutes. This is multiplied by the number of wires to get total time.' },
+        { head: 'Operations', body: 'The default operations follow IPC/WHMA-A-620. You can add, remove, or modify operations in the System tab → Labor Estimate Settings.' },
+        { head: 'Factor', body: 'Development projects use ×1.5 factor (more rework expected). Production uses ×1.0. Set the project type in the Cover Page.' },
+      ]
+    },
+    he: {
+      title: 'הערכת עבודה',
+      sections: [
+        { head: 'מטרה', body: 'מחשב זמן הרכבה משוער לפי תקן IPC/WHMA-A-620. הכפל בשכר השעתי לקבלת הערכת עלות.' },
+        { head: 'כיצד עובד', body: 'לכל פעולה (חיתוך, הפשטה, כיווץ וכו\') יש זמן יחידה בדקות. זה מוכפל במספר החוטים לקבלת זמן כולל.' },
+        { head: 'פעולות', body: 'פעולות ברירת המחדל עוקבות אחר IPC/WHMA-A-620. ניתן להוסיף, להסיר או לשנות פעולות בטאב System → Labor Estimate Settings.' },
+        { head: 'מקדם', body: 'פרויקטי פיתוח משתמשים במקדם ×1.5 (מצופה יותר עיבוד חוזר). ייצור משתמש ב-×1.0. הגדר את סוג הפרויקט בעמוד השער.' },
+      ]
+    }
+  },
+  'db-tab': {
+    en: {
+      title: 'Database',
+      sections: [
+        { head: 'Purpose', body: 'The Database stores your component library. When you select a terminal type or wire size in the Wiring List, the tool auto-fills the P/N and exposure values from here.' },
+        { head: 'DB TERM', body: 'Terminal/pin types. Columns: TYPE (what you type in PIN TYPE column), PIN P/N (auto-filled part number), Exposure (wire exposure length in mm).\nExample: TYPE=SKT 20-22AWG SIG, P/N=39-00-0047, Exposure=5' },
+        { head: 'DB WIRE', body: 'Wire types. Columns: SIZE (what you type in WIRE SIZE column), WIRE P/N (auto-filled part number).\nExample: SIZE=RED_22AWG_300V, P/N=M22759/32-22-2' },
+        { head: 'DB Connectors', body: 'Connector library. Columns: Name (connector ID), P/N, Pins (total pin count), Rows, Cols, Shape.\n• Rows/Cols: define the pin grid layout for Connector Face View\n• Shape: Grid (rectangular), Circular (round connectors like MIL-38999), D-Sub\n• Leave Rows/Cols at 0 for automatic layout' },
+        { head: 'Import/Export', body: 'Export your DB to CSV for backup or sharing. Import CSV files to load a component library. Format: TYPE,PIN_PN,EXPOSURE for terminals; SIZE,WIRE_PN for wires.' },
+      ]
+    },
+    he: {
+      title: 'מסד נתונים',
+      sections: [
+        { head: 'מטרה', body: 'ה-Database שומר את ספריית הרכיבים שלך. כשבוחרים סוג נעל או גודל חוט ברשימת החיווט, הכלי ממלא אוטומטית את מספר החלק וחשיפת החוט מכאן.' },
+        { head: 'DB TERM', body: 'סוגי נעליים/פינים. עמודות: TYPE (מה שמקלידים בעמודת PIN TYPE), PIN P/N (מספר חלק אוטומטי), Exposure (אורך חשיפת חוט במ"מ).\nדוגמה: TYPE=SKT 20-22AWG SIG, P/N=39-00-0047, Exposure=5' },
+        { head: 'DB WIRE', body: 'סוגי חוטים. עמודות: SIZE (מה שמקלידים בעמודת WIRE SIZE), WIRE P/N (מספר חלק אוטומטי).\nדוגמה: SIZE=RED_22AWG_300V, P/N=M22759/32-22-2' },
+        { head: 'DB Connectors', body: 'ספריית קונקטורים. עמודות: שם (מזהה קונקטור), P/N, פינים (סה"כ פינים), שורות, עמודות, צורה.\n• שורות/עמודות: מגדירים את פריסת רשת הפינים לתצוגת פני הקונקטור\n• צורה: Grid (מלבני), Circular (קונקטורים עגולים כמו MIL-38999), D-Sub\n• השאר שורות/עמודות על 0 ל-layout אוטומטי' },
+        { head: 'ייבוא/ייצוא', body: 'ייצא את ה-DB ל-CSV לגיבוי או שיתוף. ייבא קבצי CSV לטעינת ספריית רכיבים. פורמט: TYPE,PIN_PN,EXPOSURE לנעליים; SIZE,WIRE_PN לחוטים.' },
+      ]
+    }
+  },
+  'system-tab': {
+    en: {
+      title: 'System Settings',
+      sections: [
+        { head: 'Wire Number Format', body: 'Set the format for auto-generated wire numbers: Prefix (e.g. W), Start number, Padding (e.g. 3 = W001), Suffix. Click Renumber to apply to all existing rows.' },
+        { head: 'Column Visibility', body: 'Use the Engineering/Production/Customer presets to show/hide columns. Toggle individual columns with the chips below. Production hides engineering columns. Customer shows only circuit-level data.' },
+        { head: 'Validation Severity', body: '• Warning: AWG mismatches are flagged in yellow but export is allowed\n• Error: AWG mismatches block all export (Print, Save, Excel) until fixed' },
+        { head: 'Labor Settings', body: 'Add, remove, or modify labor operations. Enter operation name and unit time in minutes. Changes apply immediately to the Labor Estimate tab.' },
+        { head: 'Import/Export', body: 'Import wiring data from CSV or Excel. Export the full project as JSON (for sharing) or as Excel. The JSON format preserves all data including the database.' },
+      ]
+    },
+    he: {
+      title: 'הגדרות מערכת',
+      sections: [
+        { head: 'פורמט מספר חוט', body: 'הגדר את הפורמט למספרי חוטים אוטומטיים: קידומת (כמו W), מספר התחלה, ריפוד (למשל 3 = W001), סיומת. לחץ Renumber להחלה על כל השורות הקיימות.' },
+        { head: 'נראות עמודות', body: 'השתמש בפריסות המוכנות Engineering/Production/Customer להסתרה/הצגה של עמודות. שנה עמודות בודדות עם הכפתורים למטה. Production מסתיר עמודות הנדסיות. Customer מציג רק נתוני מעגל.' },
+        { head: 'חומרת ולידציה', body: '• Warning: אי-התאמות AWG מסומנות בצהוב אך הייצוא מותר\n• Error: אי-התאמות AWG חוסמות כל ייצוא (הדפסה, שמירה, Excel) עד לתיקון' },
+        { head: 'הגדרות עבודה', body: 'הוסף, הסר או שנה פעולות עבודה. הכנס שם פעולה וזמן יחידה בדקות. שינויים מוחלים מיידית בטאב הערכת העבודה.' },
+        { head: 'ייבוא/ייצוא', body: 'ייבא נתוני חיווט מ-CSV או Excel. ייצא את הפרויקט המלא כ-JSON (לשיתוף) או כ-Excel. פורמט ה-JSON שומר את כל הנתונים כולל ה-Database.' },
+      ]
+    }
+  }
+};
+
+/* ── Help button renderer ── */
+function showHelp(tabId){
+  const lang=document.documentElement.lang==='he'?'he':'en';
+  const h=KMS_HELP[tabId];
+  if(!h) return;
+  const d=h[lang]||h.en;
+
+  // Remove existing panel
+  document.getElementById('kmsHelpPanel')?.remove();
+
+  const panel=document.createElement('div');
+  panel.id='kmsHelpPanel';
+  panel.style.cssText=`position:fixed;top:0;right:0;width:360px;height:100vh;
+    background:#fff;border-left:1px solid #dde4ef;z-index:9999;
+    overflow-y:auto;box-shadow:-4px 0 20px rgba(0,0,0,.12);
+    font-family:system-ui,sans-serif;`;
+
+  let html=`<div style="background:var(--primary);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;">
+    <span style="font-size:16px;font-weight:700;">❓ ${d.title}</span>
+    <button onclick="document.getElementById('kmsHelpPanel').remove()"
+      style="margin-left:auto;background:rgba(255,255,255,.2);border:none;color:#fff;
+      border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✕</button>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button onclick="document.documentElement.lang='en';showHelp('${tabId}')"
+        style="flex:1;padding:5px;border:1px solid #dde4ef;border-radius:6px;cursor:pointer;
+        font-size:11px;font-weight:600;background:${lang==='en'?'var(--primary)':'#f8f9fa'};
+        color:${lang==='en'?'#fff':'#333'};">English</button>
+      <button onclick="document.documentElement.lang='he';showHelp('${tabId}')"
+        style="flex:1;padding:5px;border:1px solid #dde4ef;border-radius:6px;cursor:pointer;
+        font-size:11px;font-weight:600;background:${lang==='he'?'var(--primary)':'#f8f9fa'};
+        color:${lang==='he'?'#fff':'#333'};">עברית</button>
+    </div>`;
+
+  d.sections.forEach(s=>{
+    html+=`<div style="margin-bottom:14px;">
+      <div style="font-weight:700;font-size:12px;color:var(--primary);margin-bottom:4px;
+        padding-bottom:4px;border-bottom:1px solid #edf0f7;">${s.head}</div>
+      <div style="font-size:11.5px;color:#444;line-height:1.6;white-space:pre-line;">${s.body}</div>
+    </div>`;
+  });
+
+  html+=`</div>`;
+  panel.innerHTML=html;
+  document.body.appendChild(panel);
+}
+
+/* ════ KMS·WES EULA ════ */
+const EULA_KEY='kmsWES_eulaAccepted_v1';
+
+function eulaLang(lang){
+  document.getElementById('eulaTextEn').style.display=lang==='en'?'':'none';
+  document.getElementById('eulaTextHe').style.display=lang==='he'?'':'none';
+  document.getElementById('eulaEnBtn').style.cssText+=
+    lang==='en'?';background:#2563a8;color:#fff;border-color:#2563a8;'
+               :';background:#f8f9fa;color:#333;border-color:#dde4ef;';
+  document.getElementById('eulaHeBtn').style.cssText+=
+    lang==='he'?';background:#2563a8;color:#fff;border-color:#2563a8;'
+               :';background:#f8f9fa;color:#333;border-color:#dde4ef;';
+}
+
+function eulaAccept(){
+  try{localStorage.setItem(EULA_KEY,'1');}catch(e){}
+  document.getElementById('eulaModal').style.display='none';
+}
+
+function eulaDecline(){
+  document.getElementById('eulaModal').innerHTML=`
+    <div style="background:#fff;border-radius:14px;padding:40px;text-align:center;
+      max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+      <div style="font-size:48px;margin-bottom:16px;">🔒</div>
+      <div style="font-size:16px;font-weight:700;color:#1a3a5c;margin-bottom:8px;">
+        Access Denied / גישה נדחתה
+      </div>
+      <div style="font-size:12px;color:#666;margin-bottom:20px;">
+        You must accept the license agreement to use KMS·WES.<br>
+        יש לאשר את הסכם הרישיון לשימוש ב-KMS·WES.
+      </div>
+      <button onclick="location.reload()"
+        style="padding:10px 24px;background:#2563a8;color:#fff;border:none;
+        border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">
+        ↩ Back / חזור
+      </button>
+    </div>`;
+}
+
+function eulaCheck(){
+  try{
+    if(localStorage.getItem(EULA_KEY)==='1') return; // already accepted
+  }catch(e){}
+  // Show modal
+  const m=document.getElementById('eulaModal');
+  if(m) m.style.display='flex';
+}
+
+/* ════ EULA / LICENSE ════ */
+if(typeof window._eulaLoaded==='undefined'){
+  window._eulaLoaded=true;
+  window.EULA_KEY='kmsWES_eulaAccepted_v1';
+
+  window.eulaAccept=function(){
+    try{ localStorage.setItem(window.EULA_KEY, Date.now().toString()); }catch(e){}
+    var el=document.getElementById('eulaOverlay');
+    if(el) el.style.display='none';
+  };
+
+  window.eulaDecline=function(){
+    var el=document.getElementById('eulaOverlay');
+    if(!el) return;
+    el.innerHTML='<div style="background:#fff;border-radius:14px;padding:40px;text-align:center;max-width:400px;font-family:system-ui,sans-serif;"><div style="font-size:40px;margin-bottom:16px;">🔒</div><div style="font-size:16px;font-weight:700;color:#c0392b;margin-bottom:8px;">Access Denied / גישה נדחתה</div><div style="font-size:12px;color:#666;line-height:1.6;">You must accept the license agreement to use KMS·WES.<br>עליך לקבל את הסכם הרישיון כדי להשתמש בכלי.</div></div>';
+    el.style.display='flex';
+    el.style.background='rgba(10,16,28,.98)';
+  };
+
+  window.eulaCheck=function(){
+    try{
+      var accepted=localStorage.getItem(window.EULA_KEY);
+      if(accepted){
+        var el=document.getElementById('eulaOverlay');
+        if(el) el.style.display='none';
+      }
+    }catch(e){}
+  };
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', window.eulaCheck);
+  } else {
+    window.eulaCheck();
+  }
+}
 </script>
 
-<!-- WIRING ROW CONTEXT MENU -->
-<div id="wiringRowCtxMenu" style="display:none;position:fixed;z-index:9999;background:#1a2a3a;border:1px solid #2d4a60;border-radius:8px;padding:4px 0;box-shadow:0 4px 20px rgba(0,0,0,.5);min-width:180px;">
-  <div class="wctx-item" onclick="wiringRowMenuAction('above')">⬆ Insert Row Above</div>
-  <div class="wctx-item" onclick="wiringRowMenuAction('below')">⬇ Insert Row Below</div>
-  <div style="height:1px;background:#2d4a60;margin:3px 0;"></div>
-  <div class="wctx-item" onclick="wiringRowMenuAction('duplicate')">⧉ Duplicate Row</div>
-  <div style="height:1px;background:#2d4a60;margin:3px 0;"></div>
-  <div class="wctx-item wctx-danger" onclick="wiringRowMenuAction('delete')">🗑 Delete Row</div>
-</div>
-<!-- END app-body -->
+<!-- ══ EULA / LICENSE AGREEMENT ══ -->
+<div id="eulaOverlay" style="position:fixed;inset:0;background:rgba(10,16,28,.92);z-index:99999;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;">
+  <div style="background:#fff;border-radius:14px;max-width:560px;width:92%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.4);overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#1a3a6c,#2980b9);color:#fff;padding:20px 24px;">
+      <div style="font-size:11px;letter-spacing:2px;opacity:.7;margin-bottom:4px;">KMS·WES — Wiring Engineering Suite</div>
+      <div style="font-size:18px;font-weight:700;">📋 License Agreement</div>
+      <div style="font-size:11px;opacity:.6;margin-top:2px;">הסכם רישיון שימוש / End User License Agreement</div>
+    </div>
+    <div style="padding:20px 24px;overflow-y:auto;flex:1;font-size:12.5px;line-height:1.7;color:#333;">
+      <div style="background:#f0f7ff;border-left:3px solid #2980b9;padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:16px;font-size:11.5px;">
+        <strong>© 2025 Kricheli Moti &amp; Sarah. All rights reserved.</strong><br>
+        KMS·WES is proprietary software. Unauthorized copying, distribution or reverse engineering is prohibited.
+      </div>
+      <p><strong>EN — Terms of Use:</strong></p>
+      <ol style="margin:0 0 14px 16px;padding:0;">
+        <li>This software is licensed, not sold. The license is personal and non-transferable.</li>
+        <li>You may NOT copy, distribute, sell, sublicense, or share this file without written permission.</li>
+        <li>You may NOT reverse-engineer, decompile, or extract the logic of this software.</li>
+        <li>This software is provided "as-is" without warranty of any kind.</li>
+        <li>Violation of these terms may result in legal action under applicable copyright law.</li>
+      </ol>
+      <p><strong>עב — תנאי שימוש:</strong></p>
+      <ol style="margin:0 0 14px 16px;padding:0;direction:rtl;text-align:right;">
+        <li>תוכנה זו מוענקת ברישיון, לא נמכרת. הרישיון הוא אישי ואינו ניתן להעברה.</li>
+        <li>אינך רשאי להעתיק, להפיץ, למכור, להשכיר או לשתף קובץ זה ללא אישור בכתב.</li>
+        <li>אינך רשאי לבצע הנדסה לאחור, פירוק קוד, או חילוץ הלוגיקה של התוכנה.</li>
+        <li>התוכנה מסופקת כמות שהיא ללא אחריות מכל סוג שהוא.</li>
+        <li>הפרת תנאים אלה עשויה לגרור הליכים משפטיים על פי חוקי זכויות יוצרים.</li>
+      </ol>
+      <div style="background:#fff8f0;border:1px solid #f39c12;border-radius:6px;padding:10px 14px;font-size:11px;color:#7a5000;">
+        ⚠️ By clicking "I Agree", you confirm that you have read and accepted these terms.<br>
+        בלחיצה על "אני מסכים" אתה מאשר שקראת וקיבלת את התנאים.
+      </div>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid #edf0f7;display:flex;gap:10px;justify-content:flex-end;background:#f8f9fa;">
+      <button onclick="window.eulaDecline()" style="padding:9px 20px;border:1px solid #c8d4e0;border-radius:8px;background:#fff;color:#666;font-size:13px;cursor:pointer;font-weight:600;">✕ Decline / סירוב</button>
+      <button onclick="window.eulaAccept()" style="padding:9px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;font-size:13px;cursor:pointer;font-weight:700;box-shadow:0 2px 8px rgba(39,174,96,.4);">✓ I Agree / אני מסכים</button>
+    </div>
+  </div>
 </div>
 </body>
 </html>
