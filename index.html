@@ -253,7 +253,7 @@ input:focus{background:rgba(41,128,185,.06);}
 .row-warn td{background:#fffbf0!important;}
 input.auto-filled{background:#edf7f0!important;color:#1a6b4a;font-style:italic;}
 input[readonly].auto-filled{cursor:default;}
-td.cell-rownum{background:#f0f4f8;color:#1e3a5f;text-align:center;font-size:11px;font-weight:800;cursor:grab;width:52px;user-select:none;border-right:2px solid #c8d4e0!important;}
+td.cell-rownum{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#f0f4f8;color:#1e3a5f;text-align:center;font-size:11px;font-weight:800;cursor:grab;width:52px;user-select:none;border-right:2px solid #c8d4e0!important;}
 td.cell-rownum:active{cursor:grabbing;}
 td.cell-rownum::after{content:'⠿';font-size:7px;opacity:.3;margin-left:2px;display:block;line-height:0.8;}
 td.cell-action{text-align:center;width:40px;min-width:40px;padding:2px!important;background:#fff0f0!important;vertical-align:middle;position:sticky;left:0;z-index:3;border-right:2px solid #f5c6cb!important;}
@@ -420,6 +420,7 @@ td.awg-err:hover::after,td.awg-wrn:hover::after{opacity:1;}
   size:A3 landscape;
   margin:5mm;
 }
+.wno-input{-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#fff!important;background:#1a3a6c!important;}
 @media print{
   /* ── Base resets ── */
   *{
@@ -910,6 +911,22 @@ body::after{
     border-top:1px solid #eee;padding:4px;
   }
 }
+/* ── DB Searchable Dropdown ── */
+.db-dropdown{position:fixed;z-index:99999;background:#fff;border:1.5px solid #2980b9;
+  border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);max-height:240px;
+  overflow-y:auto;min-width:220px;font-size:12px;font-family:system-ui,sans-serif;}
+.db-dropdown-item{padding:7px 12px;cursor:pointer;border-bottom:1px solid #f0f4f8;
+  display:flex;flex-direction:column;gap:1px;line-height:1.3;}
+.db-dropdown-item:last-child{border-bottom:none;}
+.db-dropdown-item:hover,.db-dropdown-item.active{background:#e8f4ff;}
+.db-dropdown-item .dd-main{font-weight:600;color:#1a3a6c;font-size:12px;}
+.db-dropdown-item .dd-sub{font-size:10px;color:#888;}
+.db-dropdown-empty{padding:12px;color:#aaa;text-align:center;font-style:italic;font-size:12px;}
+
+.wno-input{background:transparent;color:#fff;font-weight:700;font-family:'Courier New',monospace;
+  font-size:12px;border:none;text-align:center;width:100%;padding:4px 2px;cursor:pointer;outline:none;}
+.wno-input:focus{background:rgba(255,255,255,0.15);border-radius:4px;cursor:text;}
+.wno-input:hover{background:rgba(255,255,255,0.1);}
 </style>
 <style id="zoomStyleEl"></style>
 </head>
@@ -918,7 +935,7 @@ body::after{
 <!-- TOP BAR -->
 <div class="topbar no-print">
   <div class="topbar-logo">⚡ WiringTool</div>
-  <span class="topbar-pn" id="tb-pn">PN-2026-X</span>
+  <span class="topbar-pn" id="tb-pn"></span>
   <span class="topbar-rev" id="tb-rev">Rev 0</span>
   <span class="topbar-status draft" id="tb-status">DRAFT</span>
   <span class="topbar-errs" id="tb-errs" onclick="navTo('val-tab')">● 0 errors</span>
@@ -974,6 +991,7 @@ body::after{
     <div class="nav-item" onclick="navTo('labor-tab',buildLabor)" id="nav-labor-tab"><span class="nav-icon">⏱</span><span class="nav-text">Labor Estimate</span></div>
     <div class="nav-item" onclick="navTo('cont-tab',buildContinuity)" id="nav-cont-tab"><span class="nav-icon">🔬</span><span class="nav-text">Continuity Test</span></div>
     <div class="nav-item" onclick="navTo('face-tab',buildFaceView)" id="nav-face-tab"><span class="nav-icon">🔌</span><span class="nav-text">Connector Face</span></div>
+    <div class="nav-item" onclick="navTo('splice-tab',buildSpliceDiagram)" id="nav-splice-tab"><span class="nav-icon">🔗</span><span class="nav-text">Splice Diagram</span></div>
     <div class="nav-item" onclick="navTo('harness-tab',buildHarness)" id="nav-harness-tab"><span class="nav-icon">🔗</span><span class="nav-text">Harness Diagram</span></div>
     <div class="nav-item" onclick="navTo('xref-tab',buildXref)" id="nav-xref-tab"><span class="nav-icon">🔍</span><span class="nav-text">Cross-Reference</span></div>
     <div class="nav-item" onclick="navTo('changelog-tab',buildChangelog)" id="nav-changelog-tab"><span class="nav-icon">📝</span>Change Log<span class="nav-badge" id="nav-changelog-badge" style="display:none">0</span></div>
@@ -1040,10 +1058,10 @@ body::after{
   </div>
   <hr class="cover-line">
   <div class="cover-grid">
-    <label>Project:</label><input type="text" id="covProject" value="INDUSTRIAL CONTROL" oninput="markDirty();updateTopbar()">
-    <label>P/N:</label><input type="text" id="covPN" value="PN-2026-X" oninput="markDirty();updateTopbar()">
+    <label>Project:</label><input type="text" id="covProject" value="" oninput="markDirty();updateTopbar()">
+    <label>P/N:</label><input type="text" id="covPN" value="" oninput="markDirty();updateTopbar()">
     <label>Rev:</label><input type="text" id="masterRev" value="0" readonly style="font-weight:700;color:var(--accent);">
-    <label>Date:</label><input type="text" id="covDate" value="12/04/2026" oninput="markDirty()">
+    <label>Date:</label><input type="text" id="covDate" value="" oninput="markDirty()">
   </div>
   <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;">
     <span style="font-size:12px;font-weight:600;color:#4a6274;">Project Type:</span>
@@ -1133,21 +1151,21 @@ body::after{
       <thead id="wiringHead"><tr>
         <th style="width:40px;position:sticky;left:0;z-index:5;background:#c0392b;color:#fff;" class="no-print">DEL</th>
         <th data-col="rn" style="width:3.41%;background:#2d4050;color:#e8f0fb;">WIRE NO</th>
-        <th data-col="1"  style="width:2.93%;">EXP A<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
-        <th data-col="2"  style="width:7.8%;">CONNECTOR #1</th>
-        <th data-col="3"  style="width:6.1%;">PIN 1 P/N<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
-        <th data-col="4"  style="width:10.49%;">PIN 1 TYPE</th>
-        <th data-col="5"  style="width:6.1%;">CMP:PIN1</th>
-        <th data-col="6"  style="width:8.54%;">WIRE SIZE</th>
-        <th data-col="7"  style="width:7.8%;">WIRE P/N<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
-        <th data-col="8"  style="width:3.41%;">LENGTH</th>
-        <th data-col="9"  style="width:3.9%;">ROUTING</th>
-        <th data-col="10" style="width:6.1%;">CMP:PIN2</th>
-        <th data-col="11" style="width:10.49%;">PIN 2 TYPE</th>
-        <th data-col="12" style="width:6.59%;">PIN 2 P/N<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
-        <th data-col="13" style="width:7.8%;">CONNECTOR #2</th>
-        <th data-col="14" style="width:2.93%;">EXP B<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
-        <th data-col="15" style="width:5.61%;">NOTES</th>
+        <th data-col="1" oncontextmenu="colHeaderMenu(1,event)" title="Right-click to clear column"  style="width:2.93%;">EXP A<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
+        <th data-col="2" oncontextmenu="colHeaderMenu(2,event)" title="Right-click to clear column"  style="width:7.8%;">CONNECTOR #1</th>
+        <th data-col="3" oncontextmenu="colHeaderMenu(3,event)" title="Right-click to clear column"  style="width:6.1%;">PIN 1 P/N<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
+        <th data-col="4" oncontextmenu="colHeaderMenu(4,event)" title="Right-click to clear column"  style="width:10.49%;">PIN 1 TYPE</th>
+        <th data-col="5" oncontextmenu="colHeaderMenu(5,event)" title="Right-click to clear column"  style="width:6.1%;">CMP:PIN1</th>
+        <th data-col="6" oncontextmenu="colHeaderMenu(6,event)" title="Right-click to clear column"  style="width:8.54%;">WIRE SIZE</th>
+        <th data-col="7" oncontextmenu="colHeaderMenu(7,event)" title="Right-click to clear column"  style="width:7.8%;">WIRE P/N<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
+        <th data-col="8" oncontextmenu="colHeaderMenu(8,event)" title="Right-click to clear column"  style="width:3.41%;">LENGTH</th>
+        <th data-col="9" oncontextmenu="colHeaderMenu(9,event)" title="Right-click to clear column"  style="width:3.9%;">ROUTING</th>
+        <th data-col="10" oncontextmenu="colHeaderMenu(10,event)" title="Right-click to clear column" style="width:6.1%;">CMP:PIN2</th>
+        <th data-col="11" oncontextmenu="colHeaderMenu(11,event)" title="Right-click to clear column" style="width:10.49%;">PIN 2 TYPE</th>
+        <th data-col="12" oncontextmenu="colHeaderMenu(12,event)" title="Right-click to clear column" style="width:6.59%;">PIN 2 P/N<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
+        <th data-col="13" oncontextmenu="colHeaderMenu(13,event)" title="Right-click to clear column" style="width:7.8%;">CONNECTOR #2</th>
+        <th data-col="14" oncontextmenu="colHeaderMenu(14,event)" title="Right-click to clear column" style="width:2.93%;">EXP B<br><small style="opacity:.7;font-weight:400;">(auto)</small></th>
+        <th data-col="15" oncontextmenu="colHeaderMenu(15,event)" title="Right-click to clear column" style="width:5.61%;">NOTES</th>
 
       </tr></thead>
       <tbody id="wiringBody"></tbody>
@@ -1209,7 +1227,7 @@ body::after{
       <th style="width:34px;" class="no-print">✓</th>
       <th style="width:240px;">PART NUMBER</th>
       <th style="width:110px;"></th>
-      <th style="width:70px;text-align:center;">QTY</th>
+      <th style="width:70px;text-align:center;">QTY / Length</th><th style="width:45px;text-align:center;">Unit</th>
       <th style="width:90px;">TYPE</th>
       <th>DESCRIPTION</th>
     </tr></thead>
@@ -1325,6 +1343,13 @@ body::after{
   </div>
 </div>
 <div id="faceBody"></div>
+</div>
+
+<!-- ══ SPLICE DIAGRAM ══ -->
+<div id="splice-tab" class="tab-content">
+<div class="page-title no-print">🔗 Splice Diagram <small>Visual layout of all splice points and their connections</small></div>
+<div class="stats-row" id="spliceStats"></div>
+<div id="spliceDiagramBody"></div>
 </div>
 
 <!-- ══ HARNESS DIAGRAM ══ -->
@@ -1471,6 +1496,100 @@ body::after{
 <!-- ══ SYSTEM ══ -->
 <div id="system-tab" class="tab-content">
 <div class="page-title no-print">⚙️ System <small>Format · Columns · Import/Export · Search</small><button onclick="showHelp('system-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
+<div class="card" style="margin-bottom:12px;">
+  <div class="card-header">🔒 Optional Tabs — Show / Hide</div>
+  <div class="card-body">
+
+    <!-- Lock section — shown when locked -->
+    <div id="optTabsLockSection">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="font-size:32px;">🔒</span>
+        <div>
+          <div style="font-weight:700;font-size:13px;color:var(--primary);">Tab Visibility — Password Required</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">Enter password to configure which tabs are visible.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;max-width:320px;">
+        <input id="optTabsPWInput" type="password" placeholder="Enter password…"
+          onkeydown="optTabsPWKeydown(event)"
+          style="flex:1;padding:8px 12px;border:1.5px solid #c8d4e0;border-radius:8px;font-size:13px;">
+        <button onclick="optTabsCheckPW()" class="btn btn-sm btn-blue">Unlock</button>
+      </div>
+      <div id="optTabsPWStatus" style="font-size:11px;margin-top:6px;height:16px;"></div>
+    </div>
+
+    <!-- Content section — shown when unlocked -->
+    <div id="optTabsContent" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:11px;color:#888;">Select which tabs appear in the sidebar. Changes saved automatically.</div>
+        <button onclick="optTabsLock()" class="btn btn-sm" style="font-size:11px;background:#f0f4f8;color:#666;">🔒 Lock</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-net-tab" checked onchange="toggleOptTab('nav-net-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>🔌 Net List</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-cable-tab" checked onchange="toggleOptTab('nav-cable-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>🔧 Cable Schedule</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-conn-tab" checked onchange="toggleOptTab('nav-conn-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>🔌 Connectors</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-connload-tab" checked onchange="toggleOptTab('nav-connload-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>📊 Connector Load</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-cont-tab" checked onchange="toggleOptTab('nav-cont-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>🔬 Continuity Test</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-face-tab" checked onchange="toggleOptTab('nav-face-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>🔌 Connector Face</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-splice-tab" checked onchange="toggleOptTab('nav-splice-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>🔗 Splice Diagram</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-harness-tab" checked onchange="toggleOptTab('nav-harness-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>🔀 Harness Diagram</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-xref-tab" checked onchange="toggleOptTab('nav-xref-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>🔍 Cross-Reference</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-changelog-tab" checked onchange="toggleOptTab('nav-changelog-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>📝 Change Log</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-diff-tab" checked onchange="toggleOptTab('nav-diff-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>🔄 Version Diff</span>
+      </label>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;">
+      <button onclick="document.querySelectorAll('[id^=optTab_]').forEach(cb=>{cb.checked=true;toggleOptTab(cb.id.replace('optTab_',''),cb);})" class="btn btn-sm btn-blue" style="font-size:11px;">✅ Show All</button>
+      <button onclick="document.querySelectorAll('[id^=optTab_]').forEach(cb=>{cb.checked=false;toggleOptTab(cb.id.replace('optTab_',''),cb);})" class="btn btn-sm" style="font-size:11px;background:#e2e8f0;color:#475569;">⬜ Hide All</button>
+    </div>
+
+    <!-- Change password section -->
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #edf0f7;">
+      <div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:8px;">🔑 Change Password</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center;max-width:600px;">
+        <input id="optTabsPWOld"  type="password" placeholder="Current password" style="padding:6px 10px;border:1px solid #c8d4e0;border-radius:6px;font-size:12px;">
+        <input id="optTabsPWNew1" type="password" placeholder="New password"     style="padding:6px 10px;border:1px solid #c8d4e0;border-radius:6px;font-size:12px;">
+        <input id="optTabsPWNew2" type="password" placeholder="Confirm new"      style="padding:6px 10px;border:1px solid #c8d4e0;border-radius:6px;font-size:12px;">
+        <button onclick="optTabsChangePW()" class="btn btn-sm" style="background:#27ae60;color:#fff;font-size:11px;">Save</button>
+      </div>
+    </div>
+
+    </div><!-- /optTabsContent -->
+  </div>
+</div>
+
 
 <!-- Row 1: Wire Format + Column Visibility -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
@@ -1663,7 +1782,7 @@ let projectType='development';
 const COL_NAMES=["WIRENO","EXP A","CONNECTOR #1","PIN 1 P/N","PIN 1 TYPE","CMP:PIN1","WIRE SIZE","WIRE P/N","LENGTH","ROUTING","CMP:PIN2","PIN 2 TYPE","PIN 2 P/N","CONNECTOR #2","EXP B","NOTES"];
 const CG=['cg1','cg2','cg3','cg4','cg5','cg6','cg7','cg8'];
 const DL_TERM='dl-term-opts',DL_WIRE='dl-wire-opts';
-const LS_KEY='wiring-v5';
+const LS_KEY='wiring-v6';
 const CABLE_COLORS=['#1e6fa5','#27ae60','#8e44ad','#e67e22','#c0392b','#0097a7','#2c3e50','#d35400'];
 const LABOR_OPS=[
   {name:'Wire identification & table lookup',unit:.5},
@@ -1700,7 +1819,7 @@ let _dirty=false,_saveTimer=null,_pendingConn='',_lastValErrors=0,_lastValWarns=
 window.onload=()=>{
   eulaCheck();
   if(!loadFromLS()){loadSampleDBs();addWiringRow();}
-  initSettings();applyGlows();updateFormatPreview();
+  _buildCtxMenu();_initPWHash();loadOptTabs();reapplyOptTabs();initSettings();applyGlows();updateFormatPreview();
   updateTopbar();buildDashboard();setTimeout(()=>{applyWiringSearch();setTableZoom(100);updateRowCount();},150);
 };
 
@@ -1746,7 +1865,7 @@ function clearLocalStorage(){if(!confirm('Clear autosave?'))return;localStorage.
 function serialize(){
   const rows=[];
   document.querySelectorAll('#wiringBody tr').forEach(tr=>{
-    const r={w:tr.cells[1]?.textContent?.trim()||''};
+    const r={w:tr.cells[1]?.querySelector('input')?.value?.trim()||tr.cells[1]?.textContent?.trim()||''};
     for(let i=1;i<=15;i++)r['c'+i]=tr.cells[i+1]?.querySelector('input')?.value||'';
     rows.push(r);
   });
@@ -1840,7 +1959,7 @@ function dc(val,lbl,sub,cls,tab,fn){
 function setRole(role){
   document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
   const rb=document.getElementById('role-'+role);if(rb)rb.classList.add('active');
-  const engOnly=['nav-val-tab','nav-net-tab','nav-cable-tab','nav-conn-tab','nav-labor-tab','nav-db-tab','nav-system-tab','nav-cont-tab','nav-face-tab'];
+  const engOnly=['nav-val-tab','nav-net-tab','nav-cable-tab','nav-conn-tab','nav-labor-tab','nav-db-tab','nav-system-tab','nav-cont-tab','nav-face-tab','nav-splice-tab'];
   const prodOnly=['nav-cutting-tab','nav-labels-tab','nav-bom-tab'];
   if(role==='prod'){
     engOnly.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
@@ -1855,6 +1974,8 @@ function setRole(role){
   if(role==='prod') applyQuickView('prod',true);
   else if(role==='cust') applyQuickView('cust',true);
   else applyQuickView('eng',true);
+
+  reapplyOptTabs();
 }
 
 /* ═══ NAVIGATION ═══ */
@@ -1865,11 +1986,12 @@ function navTo(id,fn){
   const nav=document.getElementById('nav-'+id);if(nav)nav.classList.add('active');
   if(fn)fn();
   // Pre-populate if needed
- if(id==='cutting-tab')syncCutting();
+ if(id==='cutting-tab'){syncCutting();buildWireLengthSummary();}
   if(id==='labels-tab')syncLabels();
   if(id==='system-tab'){laborRenderOps();loadValSeverity();}
   if(id==='cont-tab')buildContinuity();
   if(id==='face-tab')buildFaceView();
+  if(id==='splice-tab')buildSpliceDiagram();
   window.scrollTo(0,0);
 }
 
@@ -2048,15 +2170,22 @@ function addWiringRow(data,suppressDirty){
   // DELETE cell FIRST (left side)
   const cDel=tr.insertCell();cDel.className='cell-action no-print';
   // Row number cell second
-  const c0=tr.insertCell();c0.className='cell-rownum';c0.textContent=data?(data[0]||'').trim():_nextWireNo();
+  const c0=tr.insertCell();c0.className='cell-rownum';
+  const wnoInp=document.createElement('input');
+  wnoInp.value=data?(data[0]||'').trim():_nextWireNo();
+  wnoInp.className='wno-input';
+  wnoInp.title='Click to edit wire number';
+  wnoInp.addEventListener('change',()=>markDirty());
+  wnoInp.addEventListener('focus',()=>wnoInp.select());
+  c0.appendChild(wnoInp);
   const AUTO_RO=[1,3,7,12,14];
   for(let i=1;i<=15;i++){
     const td=tr.insertCell();const inp=document.createElement('input');
     inp.value=data?(data[i]||'').trim():'';inp.dataset.col=i;
     if(AUTO_RO.includes(i)){inp.readOnly=true;inp.className='auto-filled';inp.placeholder='auto';}
-    if(i===4){inp.setAttribute('list',DL_TERM);inp.addEventListener('input',()=>schedLookup(tr));inp.addEventListener('change',()=>{rowLookup(tr);checkRowAWG(tr);});}
-    if(i===11){inp.setAttribute('list',DL_TERM);inp.addEventListener('input',()=>schedLookup(tr));inp.addEventListener('change',()=>{rowLookup(tr);checkRowAWG(tr);});}
-    if(i===6){inp.setAttribute('list',DL_WIRE);inp.addEventListener('input',()=>schedLookup(tr));inp.addEventListener('change',()=>{rowLookup(tr);checkRowAWG(tr);});}
+    if(i===4){attachDD(inp,'term',tr);inp.addEventListener('input',()=>schedLookup(tr));}
+    if(i===11){attachDD(inp,'term',tr);inp.addEventListener('input',()=>schedLookup(tr));}
+    if(i===6){attachDD(inp,'wire',tr);inp.addEventListener('input',()=>schedLookup(tr));}
     if(i===2||i===13){inp.addEventListener('change',e=>{refreshConnGroups();checkNewConn(e.target.value.trim());});inp.addEventListener('input',refreshConnGroups);}
     inp.addEventListener('input',()=>{if(!suppressDirty)markDirty();});
     inp.addEventListener('keydown',wiringKeyNav);
@@ -2155,7 +2284,7 @@ function getRows(){
   return[...document.querySelectorAll('#wiringBody tr')].map(tr=>{
     // cells[0]=DEL, cells[1]=wireNo, cells[2..16]=data cols 1..15
     const v=(c)=>tr.cells[c]?.querySelector('input')?.value?.trim()||'';
-    return{tr,wireNo:tr.cells[1]?.textContent?.trim()||'',expA:v(2),conn1:v(3),pin1pn:v(4),pin1type:v(5),cmp1:v(6),wireSize:v(7),wirePn:v(8),length:v(9),routing:v(10),cmp2:v(11),pin2type:v(12),pin2pn:v(13),conn2:v(14),expB:v(15),notes:v(16)};
+    return{tr,wireNo:tr.cells[1]?.querySelector('input')?.value?.trim()||tr.cells[1]?.textContent?.trim()||'',expA:v(2),conn1:v(3),pin1pn:v(4),pin1type:v(5),cmp1:v(6),wireSize:v(7),wirePn:v(8),length:v(9),routing:v(10),cmp2:v(11),pin2type:v(12),pin2pn:v(13),conn2:v(14),expB:v(15),notes:v(16)};
   }).filter(r=>r.wireNo);
 }
 function getCoverInfo(){const pn=$v('covPN')||'—',rev=$v('masterRev')||'0',date=$v('covDate')||'—',isApproved=!!document.querySelector('#revBody .approved-row');return{pn,rev,date,isApproved};}
@@ -2224,25 +2353,67 @@ function exportLabelsCSV(){let csv='\uFEFF"WIRE NO","LABEL CONTENT","MARKER P/N"
 /* ═══ BOM ═══ */
 function buildBOM(){
   const map={};
-  const add=(pn,type,desc)=>{if(!pn?.trim())return;pn=pn.trim();map[pn]?map[pn].qty++:map[pn]={qty:1,type,desc};};
-  getRows().forEach(r=>{add(r.wirePn,'wire',r.wireSize||'Wire');add(r.pin1pn,'term',r.pin1type||'Terminal');add(r.pin2pn,'term',r.pin2type||'Terminal');const m=dbMarker.find(x=>r.wireSize.includes(x.size));if(m?.pn){add(m.pn,'marker','Marker '+m.size);add(m.pn,'marker','Marker '+m.size);}});
-  const entries=Object.entries(map);const ord={wire:0,term:1,marker:2};
+  // For wires: accumulate total length (mm). For terminals/markers: count
+  const addWire=(pn,desc,len)=>{
+    if(!pn?.trim()) return;
+    pn=pn.trim();
+    const mm=parseFloat(len)||0;
+    if(map[pn]){ map[pn].qty++; map[pn].totalMM+=mm; }
+    else { map[pn]={qty:1,type:'wire',desc,totalMM:mm}; }
+  };
+  const addItem=(pn,type,desc)=>{
+    if(!pn?.trim()) return;
+    pn=pn.trim();
+    map[pn]?map[pn].qty++:map[pn]={qty:1,type,desc,totalMM:0};
+  };
+  getRows().forEach(r=>{
+    addWire(r.wirePn, r.wireSize||'Wire', r.length);
+    addItem(r.pin1pn,'term',r.pin1type||'Terminal');
+    addItem(r.pin2pn,'term',r.pin2type||'Terminal');
+    const mk=dbMarker.find(x=>r.wireSize.includes(x.size));
+    if(mk?.pn) addItem(mk.pn,'marker','Marker '+mk.size);
+  });
+  const entries=Object.entries(map);
+  const ord={wire:0,term:1,marker:2};
   entries.sort((a,b)=>(ord[a[1].type]||9)-(ord[b[1].type]||9)||a[0].localeCompare(b[0]));
-  const tbody=document.getElementById('bomBody');tbody.innerHTML='';
-  let tw=0,tt=0,tm=0;
-  if(!entries.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:#aaa;">No data — add wiring rows first.</td></tr>';document.getElementById('bomStats').innerHTML='';return;}
-  entries.forEach(([pn,{qty,type,desc}])=>{
-    const badge=type==='wire'?'<span class="type-badge bw">Wire</span>':type==='term'?'<span class="type-badge bt">Term</span>':'<span class="type-badge bm">Marker</span>';
+  const tbody=document.getElementById('bomBody'); tbody.innerHTML='';
+  let tw=0,tt=0,tm=0,tLen=0;
+  if(!entries.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:#aaa;">No data — add wiring rows first.</td></tr>';
+    document.getElementById('bomStats').innerHTML=''; return;
+  }
+  entries.forEach(([pn,{qty,type,desc,totalMM}])=>{
+    const badge=type==='wire'?'<span class="type-badge bw">Wire</span>':
+                type==='term'?'<span class="type-badge bt">Term</span>':
+                              '<span class="type-badge bm">Marker</span>';
+    // For wires: show total length in METERS, for others: count
+    const totalM=totalMM>0?(totalMM/1000) : 0;
+    const qtyCell = type==='wire'
+      ? `<span style="font-weight:700;font-size:14px;">${totalM>0?totalM.toFixed(3):qty}</span>`
+      : `<span style="font-weight:700;font-size:14px;">${qty}</span>`;
+    const unitCell = type==='wire'
+      ? (totalM>0?`<span style="font-size:11px;color:#888;">m</span>`:`<span style="font-size:11px;color:#888;">pcs</span>`)
+      : `<span style="font-size:11px;color:#888;">pcs</span>`;
     const tr=tbody.insertRow();
-    tr.innerHTML=`<td class="no-print" style="text-align:center;"><input type="checkbox" checked style="width:auto;cursor:pointer;accent-color:var(--primary);" onchange="this.closest('tr').classList.toggle('bom-excl',!this.checked)"></td>
-      <td style="font-weight:700;font-family:'Courier New',monospace;">${escH(pn)}</td>
+    tr.innerHTML=`
+      <td class="no-print" style="text-align:center;">
+        <input type="checkbox" checked style="width:auto;cursor:pointer;accent-color:var(--primary);"
+          onchange="this.closest('tr').classList.toggle('bom-excl',!this.checked)">
+      </td>
+      <td style="font-weight:700;font-family:'Courier New',monospace;font-size:12px;">${escH(pn)}</td>
       <td style="background:#fafafa;border-right:2px dashed #c8d4e0;"></td>
-      <td style="text-align:center;font-weight:700;font-size:14px;">${qty}</td>
+      <td style="text-align:center;line-height:1.3;">${qtyCell}</td>
+      <td style="text-align:center;font-size:11px;color:#666;">${unitCell}</td>
       <td>${badge}</td>
       <td style="color:#666;font-size:12px;">${escH(desc)}</td>`;
-    if(type==='wire')tw+=qty;if(type==='term')tt+=qty;if(type==='marker')tm+=qty;
+    if(type==='wire'){tw+=qty; tLen+=totalMM;}
+    if(type==='term') tt+=qty;
+    if(type==='marker') tm+=qty;
   });
-  document.getElementById('bomStats').innerHTML=sc(entries.length,'Lines')+sc(tw,'Wires')+sc(tt,'Terminals')+sc(tm,'Markers');
+  document.getElementById('bomStats').innerHTML=
+    sc(entries.length,'Lines')+sc(tw,'Wires')+
+    (tLen>0?sc((tLen/1000).toFixed(3)+'m','Total Length'):'')+
+    sc(tt,'Terminals')+sc(tm,'Markers');
 }
 function copyBOMForPriority(){
   let text='';
@@ -2270,6 +2441,9 @@ function runValidation(){
   Object.entries(cmpPins).forEach(([cp,wires])=>{
     if(wires.length>1)rows.forEach(r=>{if(r.cmp1===cp||r.cmp2===cp){issues.push({type:'wrn',wireNo:r.wireNo,msg:`CMP:PIN "${cp}" on ${wires.length} wires — possible short`});if(!r.tr.classList.contains('row-error'))r.tr.classList.add('row-warn');}});
   });
+  /* ── Twin / Double terminal check ── */
+  checkTwinTerminals(rows).forEach(iss=>issues.push(iss));
+
   /* ── AWG / Terminal compatibility check ── */
   getRows().forEach(r=>{
     const ws=(r.wireSize||'').trim();
@@ -4983,7 +5157,9 @@ let _ctxMenuRow=null;
 
 function wiringRowMenu(tr,e){
   _ctxMenuRow=tr;
-  const menu=document.getElementById('wiringRowCtxMenu');
+  let menu=document.getElementById('wiringRowCtxMenu');
+  if(!menu){ _buildCtxMenu(); menu=document.getElementById('wiringRowCtxMenu'); }
+  if(!menu) return;
   menu.style.display='block';
   let x=e.clientX, y=e.clientY;
   if(x+190>window.innerWidth) x=window.innerWidth-195;
@@ -5017,7 +5193,7 @@ function _nextWireNo(){
   if(!rows.length) return generateWireNo(0);
   // Find last non-empty wireNo
   for(let i=rows.length-1;i>=0;i--){
-    const wn=rows[i].cells[1]?.textContent?.trim();
+    const wn=rows[i].cells[1]?.querySelector('input')?.value?.trim()||rows[i].cells[1]?.textContent?.trim();
     if(wn&&wn!=='—'){
       // Extract numeric suffix and increment
       const m=wn.match(/^(.*?)(\d+)([^\d]*)$/);
@@ -5036,14 +5212,20 @@ function _makeBlankWiringTr(){
   const cDel=tr.insertCell(); cDel.className='cell-action no-print';
   const btn=document.createElement('button'); btn.className='btn-delete'; btn.style.margin='0';
   btn.textContent='🗑'; btn.onclick=()=>deleteWiringRow(tr); cDel.appendChild(btn);
-  const c0=tr.insertCell(); c0.className='cell-rownum'; c0.textContent=_nextWireNo();
+  const c0=tr.insertCell(); c0.className='cell-rownum';
+  const wnoI=document.createElement('input');
+  wnoI.value=_nextWireNo(); wnoI.className='wno-input';
+  wnoI.title='Click to edit wire number';
+  wnoI.addEventListener('change',()=>markDirty());
+  wnoI.addEventListener('focus',()=>wnoI.select());
+  c0.appendChild(wnoI);
   const AUTO_RO=[1,3,7,12,14];
   for(let i=1;i<=15;i++){
     const td=tr.insertCell(); const inp=document.createElement('input');
     inp.value=''; inp.dataset.col=i;
     if(AUTO_RO.includes(i)){inp.readOnly=true;inp.className='auto-filled';inp.placeholder='auto';}
-    if(i===4||i===11){inp.setAttribute('list',DL_TERM);inp.addEventListener('change',()=>{rowLookup(tr);checkRowAWG(tr);});}
-    if(i===6){inp.setAttribute('list',DL_WIRE);inp.addEventListener('change',()=>{rowLookup(tr);checkRowAWG(tr);});}
+    if(i===4||i===11){attachDD(inp,'term',tr);}
+    if(i===6){attachDD(inp,'wire',tr);}
     if(i===2||i===13){inp.addEventListener('change',e2=>{refreshConnGroups();checkNewConn(e2.target.value.trim());});inp.addEventListener('input',refreshConnGroups);}
     inp.addEventListener('input',()=>markDirty()); inp.addEventListener('keydown',wiringKeyNav);
     td.appendChild(inp);
@@ -6053,6 +6235,661 @@ function updateExportButtonState(){
     saveBtn.style.outline=hasErr?'2px solid #e74c3c':'';
     saveBtn.title=hasErr?'❌ Fix validation errors before saving':'Save project';
   }
+}
+
+/* ════ SEARCHABLE DB DROPDOWN ════ */
+let _ddEl=null, _ddInput=null, _ddItems=[], _ddIdx=-1;
+
+function _ddShow(input, items, onSelect){
+  _ddHide();
+  if(!items.length) return;
+  _ddInput=input; _ddItems=items; _ddIdx=-1;
+
+  const dd=document.createElement('div');
+  dd.className='db-dropdown';
+  dd.id='_kmsDD';
+
+  // Position
+  const r=input.getBoundingClientRect();
+  dd.style.cssText=`position:fixed;top:${r.bottom+2}px;left:${r.left}px;width:${Math.max(220,r.width)}px;`;
+
+  _ddEl=dd;
+  _ddRender(input.value, onSelect);
+  document.body.appendChild(dd);
+
+  // Close on outside click
+  setTimeout(()=>document.addEventListener('mousedown',_ddOutside),0);
+}
+
+function _ddRender(query, onSelect){
+  if(!_ddEl) return;
+  const q=(query||'').toLowerCase();
+  const filtered=_ddItems.filter(it=>(it.main+' '+(it.sub||'')).toLowerCase().includes(q));
+  if(!filtered.length){
+    _ddEl.innerHTML='<div class="db-dropdown-empty">No matches</div>';
+    return;
+  }
+  _ddEl.innerHTML=filtered.slice(0,40).map((it,i)=>`
+    <div class="db-dropdown-item${i===_ddIdx?' active':''}" data-i="${i}">
+      <span class="dd-main">${escH(it.main)}</span>
+      ${it.sub?`<span class="dd-sub">${escH(it.sub)}</span>`:''}
+    </div>`).join('');
+  _ddEl.querySelectorAll('.db-dropdown-item').forEach((el,i)=>{
+    el.onmousedown=e=>{e.preventDefault();_ddSelect(filtered[i].main,onSelect);};
+  });
+}
+
+function _ddSelect(val, onSelect){
+  if(_ddInput) _ddInput.value=val;
+  _ddHide();
+  if(onSelect) onSelect(val);
+}
+
+function _ddHide(){
+  document.removeEventListener('mousedown',_ddOutside);
+  if(_ddEl){_ddEl.remove();_ddEl=null;}
+  _ddInput=null; _ddIdx=-1;
+}
+
+function _ddOutside(e){
+  if(_ddEl&&!_ddEl.contains(e.target)&&e.target!==_ddInput) _ddHide();
+}
+
+function _ddKey(e, onSelect){
+  if(!_ddEl) return;
+  const items=_ddEl.querySelectorAll('.db-dropdown-item');
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    _ddIdx=Math.min(_ddIdx+1,items.length-1);
+    items.forEach((el,i)=>el.classList.toggle('active',i===_ddIdx));
+    items[_ddIdx]?.scrollIntoView({block:'nearest'});
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    _ddIdx=Math.max(_ddIdx-1,0);
+    items.forEach((el,i)=>el.classList.toggle('active',i===_ddIdx));
+    items[_ddIdx]?.scrollIntoView({block:'nearest'});
+  } else if(e.key==='Enter'||e.key==='Tab'){
+    if(_ddIdx>=0&&items[_ddIdx]){
+      e.preventDefault();
+      const val=items[_ddIdx].querySelector('.dd-main').textContent;
+      _ddSelect(val,onSelect);
+    }
+  } else if(e.key==='Escape'){
+    _ddHide();
+  }
+}
+
+/* Attach searchable dropdown to a wiring input */
+function attachDD(inp, type, tr){
+  // type: 'term' | 'wire'
+  inp.autocomplete='off';
+  inp.removeAttribute('list');
+
+  function getItems(q){
+    if(type==='term'){
+      return dbTerm.filter(r=>(r.type||'').toLowerCase().includes(q.toLowerCase()))
+        .map(r=>({main:r.type, sub:r.pn?(r.pn+(r.exp?' · exp:'+r.exp+'mm':'')):''}));
+    } else {
+      return dbWire.filter(r=>(r.size||'').toLowerCase().includes(q.toLowerCase()))
+        .map(r=>({main:r.size, sub:r.pn||''}));
+    }
+  }
+
+  function onSel(val){
+    inp.dispatchEvent(new Event('change',{bubbles:true}));
+    rowLookup(tr);
+    checkRowAWG(tr);
+  }
+
+  inp.addEventListener('focus',()=>{
+    const items=getItems(inp.value);
+    _ddShow(inp, items.length?items:getItems(''), onSel);
+  });
+  inp.addEventListener('input',()=>{
+    if(!_ddEl) _ddShow(inp, getItems(inp.value), onSel);
+    else _ddRender(inp.value, onSel);
+  });
+  inp.addEventListener('keydown',e=>_ddKey(e,onSel));
+  inp.addEventListener('blur',()=>setTimeout(_ddHide,150));
+}
+
+/* ════ TWIN WIRE / DOUBLE TERMINAL VALIDATION ════ */
+// Detects two wires sharing the same connector pin
+// Validates that terminal supports twin and that combined AWG is within rating
+
+function checkTwinTerminals(rows){
+  const issues=[];
+  // Build map: cmpPin → [rows]
+  const pinMap={};
+  rows.forEach(r=>{
+    [r.cmp1, r.cmp2].forEach((cmp,side)=>{
+      if(!cmp) return;
+      const key=cmp.trim().toUpperCase();
+      if(!pinMap[key]) pinMap[key]=[];
+      pinMap[key].push({r, side, termType: side===0?r.pin1type:r.pin2type, wireSize:r.wireSize});
+    });
+  });
+
+  Object.entries(pinMap).forEach(([pin, wires])=>{
+    if(wires.length<2) return; // single wire — OK
+
+    // Multiple wires on same pin
+    const termTypes=wires.map(w=>w.termType).filter(Boolean);
+    const wireSizes=wires.map(w=>w.wireSize).filter(Boolean);
+    const wireNos=wires.map(w=>w.r.wireNo).join(', ');
+
+    if(wires.length>2){
+      // More than 2 wires on one pin — always error
+      issues.push({type:'err', wireNo:wireNos,
+        msg:`PIN ${pin}: ${wires.length} wires on same terminal (max 2 allowed)`});
+      return;
+    }
+
+    // Exactly 2 wires — check terminal support
+    const termType=(termTypes[0]||'').toLowerCase();
+    const supportsTwin=/twin|dual|2×|double|2\s*wire|two.wire/i.test(termType)||
+                       /pn.*-d|d$/i.test(termType); // e.g. PN18-10D, -D suffix
+
+    if(!supportsTwin){
+      // Check if it's explicitly mentioned in DB
+      const dbEntry=dbTerm.find(t=>(t.type||'').toLowerCase()===termType);
+      const dbSupportsTwin=dbEntry&&/twin|dual|2×|double/i.test(dbEntry.type||'');
+      if(!dbSupportsTwin){
+        issues.push({type:_valSeverity==='error'?'err':'wrn', wireNo:wireNos,
+          msg:`PIN ${pin}: 2 wires share terminal "${termTypes[0]||'?'}" — verify it supports twin wires`});
+      }
+    }
+
+    // Check combined AWG cross-section
+    if(wireSizes.length===2){
+      const awgs1=parseAllAWG(wireSizes[0]);
+      const awgs2=parseAllAWG(wireSizes[1]);
+      const termAWGs=parseAllAWG(termTypes[0]||'');
+
+      if(awgs1.length&&awgs2.length&&termAWGs.length){
+        // Get mm² for each wire (approximate from AWG)
+        function awgToMM2(awgVal){
+          // d = 0.005 * 92^((36-awg)/39) inches
+          const d=0.005*Math.pow(92,(36-awgVal)/39)*25.4; // mm
+          return Math.PI/4*d*d;
+        }
+        const mm2_1=awgToMM2(awgs1[0].min);
+        const mm2_2=awgToMM2(awgs2[0].min);
+        const mm2_total=mm2_1+mm2_2;
+        // Terminal rating: smallest AWG in range → largest mm²
+        const termMaxMM2=awgToMM2(termAWGs[0].max); // larger AWG = smaller wire
+        const termMinMM2=awgToMM2(termAWGs[0].min); // smaller AWG = larger wire
+
+        if(mm2_total>termMinMM2*1.1){ // 10% tolerance
+          issues.push({type:'err', wireNo:wireNos,
+            msg:`PIN ${pin}: combined cross-section ${mm2_total.toFixed(2)}mm² exceeds terminal max ${termMinMM2.toFixed(2)}mm² (${termTypes[0]})`});
+        }
+      }
+    }
+  });
+  return issues;
+}
+
+/* ════ WIRE LENGTH CALCULATOR ════ */
+function buildWireLengthSummary(){
+  const rows=getRows().filter(r=>r.wireNo&&r.wireSize);
+  const el=document.getElementById('wireLengthSummary');
+  if(!el) return;
+
+  if(!rows.length){el.innerHTML='<div style="color:#aaa;font-size:12px;">No wiring data.</div>';return;}
+
+  // Check if any LENGTH values exist
+  const hasLength=rows.some(r=>parseFloat(r.length)>0);
+  if(!hasLength){
+    el.innerHTML='<div style="background:#fff8f0;border:1px solid #f39c12;border-radius:8px;padding:12px;font-size:12px;color:#7a5000;">⚠️ Length column is empty. Fill in the LENGTH column in the Wiring List to see totals.</div>';
+    return;
+  }
+
+  // Group by wire size
+  const bySize={};
+  let totalLen=0, totalWires=0;
+  rows.forEach(r=>{
+    const len=parseFloat(r.length)||0;
+    const size=r.wireSize||'Unknown';
+    if(!bySize[size]) bySize[size]={count:0,totalLen:0,wires:[]};
+    bySize[size].count++;
+    bySize[size].totalLen+=len;
+    bySize[size].wires.push(r.wireNo);
+    totalLen+=len; totalWires++;
+  });
+
+  // Add 10% waste factor
+  const WASTE=0.10;
+  let html=`
+    <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+      <div style="background:#e8f4ff;border-radius:8px;padding:10px 16px;text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:#1a3a6c;">${totalWires}</div>
+        <div style="font-size:10px;color:#666;">Total Wires</div>
+      </div>
+      <div style="background:#e8fff0;border-radius:8px;padding:10px 16px;text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:#27ae60;">${totalLen.toFixed(0)}mm</div>
+        <div style="font-size:10px;color:#666;">Total Length</div>
+      </div>
+      <div style="background:#fff8e8;border-radius:8px;padding:10px 16px;text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:#e67e22;">${(totalLen*(1+WASTE)).toFixed(0)}mm</div>
+        <div style="font-size:10px;color:#666;">+10% Waste</div>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr style="background:#1a3a6c;color:#fff;">
+        <th style="padding:7px 10px;text-align:left;">Wire Size / Color</th>
+        <th style="padding:7px 10px;text-align:center;">Qty</th>
+        <th style="padding:7px 10px;text-align:right;">Net Length</th>
+        <th style="padding:7px 10px;text-align:right;">+10% Waste</th>
+        <th style="padding:7px 10px;text-align:right;">Order (round up)</th>
+      </tr></thead>
+      <tbody>`;
+
+  Object.entries(bySize).sort(([a],[b])=>a.localeCompare(b)).forEach(([size,data],i)=>{
+    const net=data.totalLen;
+    const waste=net*(1+WASTE);
+    const order=Math.ceil(waste/10)*10; // round up to 10mm
+    html+=`<tr style="${i%2?'background:#f8f9fa':''}">
+      <td style="padding:6px 10px;font-weight:600;color:#1a3a6c;">${escH(size)}</td>
+      <td style="padding:6px 10px;text-align:center;">${data.count}</td>
+      <td style="padding:6px 10px;text-align:right;">${net.toFixed(0)} mm</td>
+      <td style="padding:6px 10px;text-align:right;">${waste.toFixed(0)} mm</td>
+      <td style="padding:6px 10px;text-align:right;font-weight:700;color:#27ae60;">${order} mm</td>
+    </tr>`;
+  });
+
+  html+=`</tbody></table>
+    <div style="font-size:10px;color:#aaa;margin-top:8px;">
+      * Length in mm. Order quantities rounded up to nearest 10mm with 10% waste factor.
+    </div>`;
+
+  el.innerHTML=html;
+}
+
+/* ════ SPLICE DIAGRAM ════ */
+function buildSpliceDiagram(){
+  const body=document.getElementById('spliceDiagramBody');
+  if(!body) return;
+
+  const rows=getRows().filter(r=>r.wireNo);
+  if(!rows.length){
+    body.innerHTML='<div class="empty-state"><div class="es-icon">🔗</div><div class="es-text">No wiring data.</div></div>';
+    return;
+  }
+
+  // Find all SPLICE connectors
+  const spliceMap={}; // spliceName → {in:[], out:[]}
+  rows.forEach(r=>{
+    const p1=parseCmpPin(r.cmp1), p2=parseCmpPin(r.cmp2);
+    [[p1,p2,'in'],[p2,p1,'out']].forEach(([mine,other,dir])=>{
+      if(!/splice/i.test(mine.comp||'')) return;
+      const sname=mine.comp.toUpperCase();
+      if(!spliceMap[sname]) spliceMap[sname]={wires:[]};
+      spliceMap[sname].wires.push({
+        wireNo:r.wireNo, wireSize:r.wireSize,
+        myPin:mine.pin, otherConn:other.comp, otherPin:other.pin,
+        termType:dir==='in'?r.pin1type:r.pin2type,
+        notes:r.notes
+      });
+    });
+  });
+
+  if(!Object.keys(spliceMap).length){
+    body.innerHTML='<div style="background:#f0f8ff;border:1px solid #c8d4e0;border-radius:8px;padding:16px;font-size:12px;color:#666;">No SPLICE connectors found. Add wires with CMP:PIN format SPLICE1/A, SPLICE2/B etc.</div>';
+    return;
+  }
+
+  // Wire color helper
+  function _spliceWireCol(ws){
+    const u=(ws||'').toUpperCase();
+    if(/RED/.test(u)) return '#e74c3c';
+    if(/BLK|BLACK/.test(u)) return '#2c3e50';
+    if(/WHT|WHITE/.test(u)) return '#95a5a6';
+    if(/GRN|GREEN/.test(u)) return '#27ae60';
+    if(/YEL|YELLOW/.test(u)) return '#f1c40f';
+    if(/BLU|BLUE/.test(u)) return '#3498db';
+    if(/ORG|ORANGE/.test(u)) return '#e67e22';
+    if(/VIO|VIOLET|PUR/.test(u)) return '#9b59b6';
+    if(/GRY|GRAY|GREY/.test(u)) return '#7f8c8d';
+    if(/BRN|BROWN/.test(u)) return '#795548';
+    return '#607D8B';
+  }
+
+  let html='<div style="display:flex;flex-wrap:wrap;gap:16px;">';
+
+  Object.keys(spliceMap).sort().forEach(sname=>{
+    const sp=spliceMap[sname];
+    const wires=sp.wires.sort((a,b)=>(a.myPin||'').localeCompare(b.myPin||''));
+
+    html+=`<div style="background:#fff;border:1px solid #dde4ef;border-radius:10px;
+      padding:14px;min-width:300px;max-width:420px;break-inside:avoid;">
+
+      <!-- Splice header -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;
+        padding-bottom:8px;border-bottom:2px solid #1a3a6c;">
+        <span style="font-size:18px;">🔗</span>
+        <span style="font-size:14px;font-weight:800;color:#1a3a6c;">${escH(sname)}</span>
+        <span style="font-size:10px;background:#f0f4f8;padding:2px 8px;border-radius:10px;color:#666;">
+          ${wires.length} wire${wires.length!==1?'s':''}
+        </span>
+      </div>
+
+      <!-- Visual splice diagram -->
+      <div style="display:flex;align-items:center;justify-content:center;
+        margin-bottom:12px;min-height:60px;position:relative;">
+
+        <!-- Left side: incoming wires -->
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+          ${wires.map(w=>{
+            const col=_spliceWireCol(w.wireSize);
+            return `<div style="display:flex;align-items:center;gap:4px;">
+              <span style="font-size:9px;color:#666;text-align:right;max-width:80px;overflow:hidden;
+                text-overflow:ellipsis;white-space:nowrap;">${escH(w.otherConn||'?')}/${escH(w.otherPin||'?')}</span>
+              <span style="font-size:9px;font-weight:700;color:${col};font-family:monospace;">${escH(w.wireNo)}</span>
+              <div style="width:30px;height:3px;background:${col};border-radius:2px;"></div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <!-- Splice body -->
+        <div style="width:40px;height:${Math.max(40,wires.length*16+8)}px;
+          background:linear-gradient(135deg,#1a3a6c,#2980b9);
+          border-radius:6px;display:flex;align-items:center;justify-content:center;
+          color:#fff;font-size:9px;font-weight:700;text-align:center;
+          box-shadow:0 2px 8px rgba(26,58,108,.3);">
+          ${escH(sname.replace('SPLICE','').trim()||'S')}
+        </div>
+
+        <!-- Right side: same wires continuing -->
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-start;">
+          ${wires.map(w=>{
+            const col=_spliceWireCol(w.wireSize);
+            return `<div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:30px;height:3px;background:${col};border-radius:2px;"></div>
+              <span style="font-size:9px;font-weight:700;color:${col};font-family:monospace;">${escH(w.wireNo)}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Wire table -->
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead><tr style="background:#f0f4f8;">
+          <th style="padding:4px 6px;text-align:left;border:1px solid #edf0f7;">Wire</th>
+          <th style="padding:4px 6px;text-align:left;border:1px solid #edf0f7;">Size</th>
+          <th style="padding:4px 6px;text-align:left;border:1px solid #edf0f7;">From/To</th>
+          <th style="padding:4px 6px;text-align:left;border:1px solid #edf0f7;">Pin</th>
+        </tr></thead>
+        <tbody>
+        ${wires.map((w,i)=>`<tr style="${i%2?'background:#f8f9fa':''}">
+          <td style="padding:4px 6px;border:1px solid #edf0f7;font-family:monospace;
+            font-weight:700;color:#1a3a6c;">${escH(w.wireNo)}</td>
+          <td style="padding:4px 6px;border:1px solid #edf0f7;font-size:10px;">${escH(w.wireSize)}</td>
+          <td style="padding:4px 6px;border:1px solid #edf0f7;font-weight:600;">${escH(w.otherConn||'—')}</td>
+          <td style="padding:4px 6px;border:1px solid #edf0f7;font-family:monospace;">${escH(w.otherPin||'—')}</td>
+        </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  });
+
+  html+='</div>';
+  body.innerHTML=html;
+}
+
+/* ── Build context menu HTML if missing ── */
+function _buildCtxMenu(){
+  if(document.getElementById('wiringRowCtxMenu')) return;
+  const m=document.createElement('div');
+  m.id='wiringRowCtxMenu';
+  m.style.cssText='position:fixed;z-index:99998;background:#fff;border:1px solid #c8d4e0;'+
+    'border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);min-width:180px;'+
+    'display:none;font-size:13px;font-family:system-ui,sans-serif;overflow:hidden;';
+  const items=[
+    {icon:'⬆️',label:'Insert Row Above', action:'above'},
+    {icon:'⬇️',label:'Insert Row Below', action:'below'},
+    {icon:'📋',label:'Duplicate Row',     action:'duplicate'},
+    {icon:'🗑',label:'Delete Row',        action:'delete'},
+  ];
+  items.forEach((it,i)=>{
+    const d=document.createElement('div');
+    d.style.cssText='padding:9px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;'+
+      (i<items.length-1?'border-bottom:1px solid #f0f4f8;':'');
+    d.innerHTML=`<span style="font-size:14px">${it.icon}</span><span>${it.label}</span>`;
+    if(it.action==='delete'){
+      d.style.color='#e74c3c';
+    }
+    d.onmouseenter=()=>d.style.background='#f0f4f8';
+    d.onmouseleave=()=>d.style.background='';
+    d.onclick=()=>wiringRowMenuAction(it.action);
+    m.appendChild(d);
+  });
+  document.body.appendChild(m);
+}
+
+/* ════ OPTIONAL TABS VISIBILITY ════ */
+const OPT_TABS_KEY='kms_optTabs_v1';
+const OPT_TABS_DEFAULT={
+  'nav-net-tab':false,'nav-cable-tab':false,'nav-conn-tab':false,
+  'nav-connload-tab':false,'nav-cont-tab':false,'nav-face-tab':false,
+  'nav-splice-tab':false,'nav-harness-tab':false,'nav-xref-tab':false,
+  'nav-changelog-tab':false,'nav-diff-tab':false
+};
+
+function loadOptTabs(){
+  let saved;
+  try{ saved=JSON.parse(localStorage.getItem(OPT_TABS_KEY)); }catch(e){}
+  const prefs=Object.assign({},OPT_TABS_DEFAULT,saved||{});
+  Object.entries(prefs).forEach(([navId,show])=>{
+    const cb=document.getElementById('optTab_'+navId);
+    if(cb) cb.checked=show;
+    applyOptTab(navId,show,false);
+  });
+}
+
+function applyOptTab(navId,show,save=true){
+  const navEl=document.getElementById(navId);
+  if(navEl) navEl.style.display=show?'':'none';
+  if(save){
+    let saved={};
+    try{ saved=JSON.parse(localStorage.getItem(OPT_TABS_KEY))||{}; }catch(e){}
+    saved[navId]=show;
+    try{ localStorage.setItem(OPT_TABS_KEY,JSON.stringify(saved)); }catch(e){}
+  }
+}
+
+function toggleOptTab(navId,cb){
+  const show=cb.checked;
+  applyOptTab(navId,show);
+  // If current active tab is being hidden → go to dashboard
+  const tabId=navId.replace('nav-','').replace(/-tab$/,'-tab');
+  const activeTab=document.querySelector('.tab-content.active');
+  if(!show && activeTab && activeTab.id===tabId.replace('nav-','')){
+    navTo('dash-tab');
+  }
+}
+
+/* ════ OPTIONAL TABS PASSWORD LOCK ════ */
+const OPT_TABS_PW_KEY='kms_optPW_v1';
+// Password hash: SHA-256 of the password
+// Default password: 'KMS2025' — change by updating OPT_TABS_PW_HASH
+// To generate: run in console: crypto.subtle.digest('SHA-256',new TextEncoder().encode('yourpass')).then(b=>console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+let OPT_TABS_PW_HASH='a1b3e4d5c2f6789012345678abcdef01234567890abcdef0123456789abcdef0'; // placeholder — set on init
+let _optTabsUnlocked=false;
+
+async function _initPWHash(){
+  // Hash the default password 'KMS2025'
+  const stored=localStorage.getItem(OPT_TABS_PW_KEY);
+  if(stored) { OPT_TABS_PW_HASH=stored; return; }
+  // Set default hash
+  OPT_TABS_PW_HASH=await _sha256('KMS2025');
+}
+
+async function _sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+async function optTabsCheckPW(){
+  const inp=document.getElementById('optTabsPWInput');
+  if(!inp||!inp.value.trim()){
+    _optTabsPWStatus('Enter password','#e74c3c'); return;
+  }
+  const hash=await _sha256(inp.value.trim());
+  if(hash===OPT_TABS_PW_HASH){
+    _optTabsUnlocked=true;
+    inp.value='';
+    document.getElementById('optTabsLockSection').style.display='none';
+    document.getElementById('optTabsContent').style.display='block';
+    _optTabsPWStatus('','');
+  } else {
+    _optTabsPWStatus('❌ Wrong password','#e74c3c');
+    inp.value='';
+  }
+}
+
+async function optTabsChangePW(){
+  const old=document.getElementById('optTabsPWOld');
+  const n1=document.getElementById('optTabsPWNew1');
+  const n2=document.getElementById('optTabsPWNew2');
+  if(!old||!n1||!n2) return;
+  const oldHash=await _sha256(old.value.trim());
+  if(oldHash!==OPT_TABS_PW_HASH){_optTabsPWStatus('❌ Wrong current password','#e74c3c');return;}
+  if(!n1.value.trim()){_optTabsPWStatus('❌ New password empty','#e74c3c');return;}
+  if(n1.value!==n2.value){_optTabsPWStatus('❌ Passwords do not match','#e74c3c');return;}
+  OPT_TABS_PW_HASH=await _sha256(n1.value.trim());
+  try{localStorage.setItem(OPT_TABS_PW_KEY,OPT_TABS_PW_HASH);}catch(e){}
+  old.value=''; n1.value=''; n2.value='';
+  _optTabsPWStatus('✅ Password changed','#27ae60');
+}
+
+function optTabsLock(){
+  _optTabsUnlocked=false;
+  document.getElementById('optTabsLockSection').style.display='block';
+  document.getElementById('optTabsContent').style.display='none';
+}
+
+function _optTabsPWStatus(msg,color){
+  const el=document.getElementById('optTabsPWStatus');
+  if(el){el.textContent=msg;el.style.color=color;}
+}
+
+// Allow Enter key on password field
+function optTabsPWKeydown(e){
+  if(e.key==='Enter') optTabsCheckPW();
+}
+
+/* ── Re-apply optTab prefs after setRole resets visibility ── */
+function reapplyOptTabs(){
+  let saved={};
+  try{ saved=JSON.parse(localStorage.getItem(OPT_TABS_KEY))||{}; }catch(e){}
+  const prefs=Object.assign({},OPT_TABS_DEFAULT,saved);
+  Object.entries(prefs).forEach(([navId,show])=>{
+    if(!show){
+      const el=document.getElementById(navId);
+      if(el) el.style.display='none';
+    }
+  });
+}
+
+/* ════ COLUMN / RANGE CLEAR (Excel-style) ════ */
+let _selCells=new Set(); // selected input elements
+let _selStart=null;
+
+// Mark cell as selected (highlight)
+function _cellSelect(inp, addToSel){
+  if(!addToSel){ _selCells.forEach(i=>{i.style.background='';i.style.outline='';}); _selCells.clear(); }
+  _selCells.add(inp);
+  inp.style.background='#cce5ff'; inp.style.outline='2px solid #2980b9';
+}
+
+// Clear selected cells
+function clearSelectedCells(){
+  _selCells.forEach(inp=>{
+    if(!inp.readOnly){ inp.value=''; inp.dispatchEvent(new Event('input',{bubbles:true})); }
+    inp.style.background=''; inp.style.outline='';
+  });
+  _selCells.clear();
+  markDirty();
+}
+
+// Column header click → select entire column
+function selectColumn(colIdx){
+  _selCells.forEach(i=>{i.style.background='';i.style.outline='';});
+  _selCells.clear();
+  document.querySelectorAll('#wiringBody tr').forEach(tr=>{
+    const inp=tr.cells[colIdx+1]?.querySelector('input');
+    if(inp&&!inp.readOnly){ _cellSelect(inp,true); }
+  });
+}
+
+// Column header context menu → Clear Column
+function colHeaderMenu(colIdx, e){
+  e.preventDefault();
+  if(confirm('Clear entire column?')) selectColumn(colIdx), clearSelectedCells();
+}
+
+// Global keydown: Delete/Backspace clears selected cells
+document.addEventListener('keydown', e=>{
+  if((e.key==='Delete'||e.key==='Backspace') && _selCells.size>0
+     && document.activeElement.tagName!=='INPUT'){
+    e.preventDefault(); clearSelectedCells();
+  }
+});
+
+// Range select: mousedown on input starts selection, mouseover extends
+let _rangeSelecting=false;
+function _wiringMousedown(e){
+  const inp=e.target.closest('#wiringBody input');
+  if(!inp) return;
+  if(e.shiftKey && _selStart){
+    // Extend selection from _selStart to current
+    _extendSel(inp); return;
+  }
+  if(!e.ctrlKey && !e.metaKey){
+    _selCells.forEach(i=>{i.style.background='';i.style.outline='';});
+    _selCells.clear();
+  }
+  _selStart=inp; _rangeSelecting=true;
+  _cellSelect(inp,true);
+}
+function _wiringMouseover(e){
+  if(!_rangeSelecting) return;
+  const inp=e.target.closest('#wiringBody input');
+  if(inp) _extendSel(inp);
+}
+function _wiringMouseup(){ _rangeSelecting=false; }
+
+function _extendSel(endInp){
+  // Find row/col of start and end
+  const allRows=[...document.querySelectorAll('#wiringBody tr')];
+  function pos(inp){
+    const tr=inp.closest('tr');
+    const ri=allRows.indexOf(tr);
+    const ci=[...tr.querySelectorAll('input')].indexOf(inp);
+    return {ri,ci};
+  }
+  const s=pos(_selStart), e=pos(endInp);
+  const r1=Math.min(s.ri,e.ri), r2=Math.max(s.ri,e.ri);
+  const c1=Math.min(s.ci,e.ci), c2=Math.max(s.ci,e.ci);
+  _selCells.forEach(i=>{i.style.background='';i.style.outline='';});
+  _selCells.clear();
+  for(let r=r1;r<=r2;r++){
+    const inputs=[...allRows[r].querySelectorAll('input')];
+    for(let col=c1;col<=c2;col++){
+      if(inputs[col]&&!inputs[col].readOnly) _cellSelect(inputs[col],true);
+    }
+  }
+}
+
+// Attach to wiringBody
+function _attachRangeSel(){
+  const wb=document.getElementById('wiringBody');
+  if(!wb||wb._rangeSelAttached) return;
+  wb._rangeSelAttached=true;
+  wb.addEventListener('mousedown',_wiringMousedown);
+  wb.addEventListener('mouseover',_wiringMouseover);
+  wb.addEventListener('mouseup',_wiringMouseup);
 }
 </script>
 
