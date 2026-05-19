@@ -420,7 +420,7 @@ td.awg-err:hover::after,td.awg-wrn:hover::after{opacity:1;}
   size:A3 landscape;
   margin:5mm;
 }
-.wno-input{-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#fff!important;background:#1a3a6c!important;}
+.wno-input{display:none!important;}
 @media print{
   /* ── Base resets ── */
   *{
@@ -905,6 +905,37 @@ body::after{
   display:none;
 }
 @media print{
+  /* ── Detail Sheets print ── */
+  #dsSheetsContainer .ds-toolbar { display:none!important; }
+  #dsSheetsContainer canvas {
+    max-width:100%!important;
+    page-break-inside:avoid;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  #dsSheetsContainer .ds-sheet-card {
+    page-break-inside:avoid;
+    border:1px solid #dde4ef!important;
+    margin-bottom:16px;
+  }
+
+  /* ── Wire number cell in print ── */
+  .cell-rownum{
+    background:#1a3a6c!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  .wno-input{ display:none!important; }
+  .cell-rownum .print-val{
+    display:block!important;
+    color:#fff!important;
+    font-weight:800!important;
+    font-size:9pt!important;
+    text-align:center!important;
+    font-family:'Courier New',monospace!important;
+  }
+
+
   body::after{
     display:block;position:fixed;bottom:0;left:0;right:0;
     text-align:center;font-size:8pt;color:#aaa;
@@ -1009,6 +1040,7 @@ body::after{
     <div class="sidebar-group-label">Settings</div>
     <div class="nav-item" onclick="navTo('db-tab')" id="nav-db-tab"><span class="nav-icon">🗃️</span><span class="nav-text">Database</span></div>
     <div class="nav-item" onclick="openTemplateLibrary()" id="nav-templates-btn"><span class="nav-icon">📚</span><span class="nav-text">Templates</span></div>
+    <div class="nav-item" onclick="navTo('detail-tab',buildDetailSheets)" id="nav-detail-tab"><span class="nav-icon">📎</span><span class="nav-text">Detail Sheets</span></div>
     <div class="nav-item" onclick="navTo('system-tab')" id="nav-system-tab"><span class="nav-icon">⚙️</span><span class="nav-text">System</span></div>
   </div>
 </nav>
@@ -1494,6 +1526,19 @@ body::after{
 </div>
 
 <!-- ══ SYSTEM ══ -->
+<div id="detail-tab" class="tab-content">
+<div class="page-title no-print">📎 Detail Sheets <small>Freehand diagrams, notes and reference images</small></div>
+<div class="no-print" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+  <button onclick="dsAddSheet()" class="btn btn-sm btn-blue">＋ Add Sheet</button>
+  <span style="font-size:11px;color:#888;">Draw, type, upload images · Saved with project</span>
+</div>
+<div id="dsSheetsContainer" style="display:flex;flex-direction:column;gap:16px;"></div>
+<div id="dsEmpty" style="padding:40px;text-align:center;color:#aaa;">
+  <div style="font-size:40px;margin-bottom:12px;">📎</div>
+  <div style="font-size:14px;">No detail sheets yet — click <strong>+ Add Sheet</strong></div>
+</div>
+</div>
+
 <div id="system-tab" class="tab-content">
 <div class="page-title no-print">⚙️ System <small>Format · Columns · Import/Export · Search</small><button onclick="showHelp('system-tab')" title="Help / עזרה" style="float:right;margin-top:-2px;background:none;border:1px solid #c8d4e0;border-radius:20px;padding:3px 12px;font-size:11px;cursor:pointer;color:#607D8B;font-weight:600;">❓ Help</button></div>
 <div class="card" style="margin-bottom:12px;">
@@ -1568,6 +1613,10 @@ body::after{
       <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
         <input type="checkbox" id="optTab_nav-diff-tab" checked onchange="toggleOptTab('nav-diff-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
         <span>🔄 Version Diff</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8f9fa;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid #edf0f7;user-select:none;">
+        <input type="checkbox" id="optTab_nav-detail-tab" checked onchange="toggleOptTab('nav-detail-tab',this)" style="width:auto;accent-color:var(--primary);cursor:pointer;">
+        <span>📎 Detail Sheets</span>
       </label>
     </div>
     <div style="margin-top:10px;display:flex;gap:8px;">
@@ -1812,6 +1861,7 @@ const PRINT_TABS=[
   {id:'xref-tab',       label:'🔍 Cross-Reference',       def:false, xlsx:true},
   {id:'changelog-tab',  label:'📝 Change Log',            def:false, xlsx:true},
   {id:'cont-tab',       label:'🔬 Continuity Test',        def:true,  xlsx:true},
+  {id:'detail-tab',     label:'📎 Detail Sheets',          def:false, xlsx:false},
 ];
 let _dirty=false,_saveTimer=null,_pendingConn='',_lastValErrors=0,_lastValWarns=0;
 
@@ -1889,6 +1939,8 @@ function deserialize(d){
   d.rows.forEach(r=>{const a=[r.w];for(let i=1;i<=15;i++)a.push(r['c'+i]||'');addWiringRow(a,true);});
   if(d.revs){document.getElementById('revBody').innerHTML='';d.revs.forEach(rv=>addRevFromData(rv));}
  refreshConnGroups();updateTopbar();
+
+  if(d.detailSheets)_dsSheets=[...d.detailSheets];
 }
 function saveProject(){const pn=$v('covPN')||'project';dlBlob(JSON.stringify(serialize(),null,2),pn.replace(/[^a-z0-9]/gi,'_')+'_wiring.json','application/json');}
 function loadProject(input){const r=new FileReader();r.onload=e=>{try{deserialize(JSON.parse(e.target.result));autoSave();alert('Project loaded.');}catch(err){alert('Error: '+err.message);}};r.readAsText(input.files[0]);input.value='';}
@@ -1992,6 +2044,7 @@ function navTo(id,fn){
   if(id==='cont-tab')buildContinuity();
   if(id==='face-tab')buildFaceView();
   if(id==='splice-tab')buildSpliceDiagram();
+  if(id==='detail-tab')buildDetailSheets();
   window.scrollTo(0,0);
 }
 
@@ -2558,8 +2611,18 @@ function buildLabor(){
 /* ═══ PRINT / EXPORT ═══ */
 function openPrintModal(){
   // Refresh all content before printing
-  syncCutting();syncLabels();buildBOM();runValidation();buildNetList();buildCableSchedule();buildConnSummary();buildLabor();
-  document.getElementById('printChecks').innerHTML=PRINT_TABS.map(t=>`
+  syncCutting();syncLabels();buildBOM();runValidation();buildNetList();buildCableSchedule();buildDetailSheets();buildConnSummary();buildLabor();
+  // Filter PRINT_TABS: only show tabs that are currently visible
+  const visiblePrintTabs=PRINT_TABS.filter(t=>{
+    const navId='nav-'+t.id.replace('-tab','-tab').replace('tab','tab');
+    // Map tab id to nav id
+    const nid='nav-'+t.id;
+    const navEl=document.getElementById(nid);
+    // If nav element exists and is hidden, exclude from print
+    if(navEl&&navEl.style.display==='none') return false;
+    return true;
+  });
+  document.getElementById('printChecks').innerHTML=visiblePrintTabs.map(t=>`
     <div class="print-check-row">
       <input type="checkbox" id="pc_${t.id}" ${t.def?'checked':''} style="width:auto;accent-color:var(--primary);">
       <label for="pc_${t.id}" style="cursor:pointer;flex:1;">${t.label}</label>
@@ -2569,7 +2632,7 @@ function openPrintModal(){
 }
 function closePrintModal(){document.getElementById('printModal').classList.remove('open');}
 function executePrint(){
-  const selected=PRINT_TABS.filter(t=>document.getElementById('pc_'+t.id)?.checked).map(t=>t.id);
+  const selected=(typeof visiblePrintTabs!=='undefined'?visiblePrintTabs:PRINT_TABS).filter(t=>document.getElementById('pc_'+t.id)?.checked).map(t=>t.id);
   if(!selected.length){alert('Please select at least one tab to print.');return;}
   closePrintModal();
 
@@ -2590,15 +2653,16 @@ function executePrint(){
       // Wire No cell — store text, clear node, add span
       const wn=tr.cells[1];
       if(wn && !wn.querySelector('.print-val')){
-        const origText=wn.textContent.trim();
-        // Clear all text nodes to avoid duplication
-        [...wn.childNodes].forEach(n=>{if(n.nodeType===3)n.textContent='';});
+        // Read from wno-input if present, else textContent
+        const wnoInp=wn.querySelector('.wno-input');
+        const origText=wnoInp?wnoInp.value.trim():wn.textContent.trim();
+        if(wnoInp) wnoInp.style.display='none';
         const sp=document.createElement('span');
         sp.className='print-val';
-        sp.style.cssText='display:block;font-size:7pt;font-weight:700;color:#000;text-align:center;';
+        sp.style.cssText='display:block;font-size:7pt;font-weight:700;color:#fff;background:#1a3a6c;text-align:center;padding:2px;';
         sp.textContent=origText;
         wn.appendChild(sp);
-        spans.push({el:sp, restoreNode:wn, origText});
+        spans.push({el:sp, restoreNode:wn, origText, wnoInp});
       }
       // Data cells now at indices 2..16 (0=DEL, 1=wireNo, 2..=data)
       for(let i=2;i<tr.cells.length;i++){
@@ -2648,12 +2712,8 @@ function executePrint(){
         if(!s) return;
         if(s.el){
           s.el.remove();
-          if(s.restoreNode && s.origText){
-            [...s.restoreNode.childNodes].forEach(n=>{
-              if(n.nodeType===3) n.textContent=s.origText;
-            });
-          }
-        } else if(s.remove) {
+          if(s.wnoInp) s.wnoInp.style.display='';
+        } else if(s && s.remove) {
           s.remove();
         }
       });
@@ -3103,7 +3163,8 @@ const XLSX_EXCLUDE=['dash-tab','db-tab','system-tab'];
 
 function exportSelectedXLSX(){
   if(hasBlockingErrors()){warnBlockingErrors();return;}
-  const selected=PRINT_TABS.filter(t=>{
+  const visXlsx=PRINT_TABS.filter(t=>{const nid='nav-'+t.id;const ne=document.getElementById(nid);return!(ne&&ne.style.display==='none');});
+  const selected=visXlsx.filter(t=>{
     if(!document.getElementById('pc_'+t.id)?.checked)return false;
     if(XLSX_EXCLUDE.includes(t.id))return false;
     return true;
@@ -5153,6 +5214,7 @@ function toggleSidebar(){
 
 
 /* ════ WIRING ROW CONTEXT MENU + INSERT ROW ════ */
+let _dsSheets=[];
 let _ctxMenuRow=null;
 
 function wiringRowMenu(tr,e){
@@ -6673,7 +6735,7 @@ const OPT_TABS_DEFAULT={
   'nav-net-tab':false,'nav-cable-tab':false,'nav-conn-tab':false,
   'nav-connload-tab':false,'nav-cont-tab':false,'nav-face-tab':false,
   'nav-splice-tab':false,'nav-harness-tab':false,'nav-xref-tab':false,
-  'nav-changelog-tab':false,'nav-diff-tab':false
+  'nav-changelog-tab':false,'nav-diff-tab':false,'nav-detail-tab':false
 };
 
 function loadOptTabs(){
@@ -6890,6 +6952,599 @@ function _attachRangeSel(){
   wb.addEventListener('mousedown',_wiringMousedown);
   wb.addEventListener('mouseover',_wiringMouseover);
   wb.addEventListener('mouseup',_wiringMouseup);
+}
+
+/* ════ PRINT FIX: show wireNo in PDF/print ════ */
+window.addEventListener('beforeprint', ()=>{
+  document.querySelectorAll('#wiringBody td.cell-rownum').forEach(td=>{
+    const inp=td.querySelector('.wno-input');
+    if(!inp) return;
+    // Remove existing print-val if any
+    td.querySelectorAll('.print-val').forEach(el=>el.remove());
+    // Create print-val span with current value
+    const span=document.createElement('span');
+    span.className='print-val';
+    span.textContent=inp.value;
+    td.appendChild(span);
+  });
+});
+window.addEventListener('afterprint', ()=>{
+  document.querySelectorAll('#wiringBody td.cell-rownum .print-val').forEach(el=>el.remove());
+});
+
+
+/* ════════════════════════════════════════════════════════════
+   DETAIL SHEETS v3 — Full engineering drawing engine
+   Features: shapes, images, freehand, drag/resize/rotate
+   ════════════════════════════════════════════════════════════ */
+
+const DS_SHAPES = [
+  { type:'ring_terminal', label:'Ring Terminal', icon:'⭕', w:70,h:40,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; ctx.strokeStyle=col;ctx.lineWidth=2;
+      ctx.beginPath();ctx.ellipse(x+20,y+h/2,14,10,0,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+34,y+h/2);ctx.lineTo(x+w,y+h/2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+w-8,y+h/2-6);ctx.lineTo(x+w,y+h/2);ctx.lineTo(x+w-8,y+h/2+6);ctx.stroke();
+    }},
+  { type:'fork_terminal', label:'Fork Terminal', icon:'🔱', w:70,h:40,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; ctx.strokeStyle=col;ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(x,y+h/2);ctx.lineTo(x+w-22,y+h/2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+w-22,y+8);ctx.lineTo(x+w,y+8);
+      ctx.moveTo(x+w-22,y+h-8);ctx.lineTo(x+w,y+h-8);
+      ctx.moveTo(x+w-22,y+8);ctx.lineTo(x+w-22,y+h-8);ctx.stroke();
+    }},
+  { type:'pin_terminal', label:'Pin Terminal', icon:'📌', w:70,h:30,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; ctx.strokeStyle=col;ctx.lineWidth=2;
+      ctx.strokeRect(x+2,y+h/2-7,w-22,14);
+      ctx.beginPath();ctx.moveTo(x+w-20,y+h/2);ctx.lineTo(x+w,y+h/2);ctx.stroke();
+    }},
+  { type:'ferrule', label:'Ferrule', icon:'▬', w:56,h:28,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; ctx.strokeStyle=col;ctx.lineWidth=2;
+      ctx.strokeRect(x+4,y+4,w-8,h-8);
+      ctx.beginPath();ctx.moveTo(x+4,y+h/2);ctx.lineTo(x-8,y+h/2);ctx.stroke();
+      ctx.strokeRect(x-12,y+h/2-4,6,8);
+    }},
+  { type:'twin_ferrule', label:'Twin Ferrule', icon:'▬▬', w:60,h:36,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; ctx.strokeStyle=col;ctx.lineWidth=2;
+      ctx.strokeRect(x+4,y+2,w-8,h/2-3);ctx.strokeRect(x+4,y+h/2+1,w-8,h/2-3);
+      ctx.beginPath();ctx.moveTo(x+4,y+h/4);ctx.lineTo(x-8,y+h/4);
+      ctx.moveTo(x+4,y+h*3/4);ctx.lineTo(x-8,y+h*3/4);ctx.stroke();
+    }},
+  { type:'splice', label:'Splice', icon:'⊗', w:56,h:30,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; const cx=x+w/2,cy=y+h/2,r=11;
+      ctx.strokeStyle=col;ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx-r,cy);ctx.lineTo(x,cy);
+      ctx.moveTo(cx+r,cy);ctx.lineTo(x+w,cy);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx-8,cy-8);ctx.lineTo(cx+8,cy+8);
+      ctx.moveTo(cx+8,cy-8);ctx.lineTo(cx-8,cy+8);ctx.stroke();
+    }},
+  { type:'heat_shrink', label:'Heat Shrink', icon:'〓', w:80,h:24,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; ctx.strokeStyle=col;ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(x,y+h/2);ctx.lineTo(x+10,y+2);
+      ctx.lineTo(x+w-10,y+2);ctx.lineTo(x+w,y+h/2);
+      ctx.lineTo(x+w-10,y+h-2);ctx.lineTo(x+10,y+h-2);ctx.closePath();ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x,y+h/2);ctx.lineTo(x-10,y+h/2);
+      ctx.moveTo(x+w,y+h/2);ctx.lineTo(x+w+10,y+h/2);ctx.stroke();
+    }},
+  { type:'connector_rect', label:'Connector', icon:'🔌', w:50,h:64,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; ctx.strokeStyle=col;ctx.lineWidth=2;
+      ctx.strokeRect(x+4,y+4,w-8,h-8);
+      for(let i=0;i<3;i++){const py=y+14+i*16;
+        ctx.beginPath();ctx.arc(x+w/2,py,5,0,Math.PI*2);ctx.stroke();}
+    }},
+  { type:'wire', label:'Wire', icon:'〰', w:90,h:20,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; ctx.strokeStyle=col;ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(x,y+h/2);ctx.lineTo(x+w,y+h/2);ctx.stroke();
+      ctx.lineWidth=1;ctx.beginPath();
+      ctx.moveTo(x+w-9,y+h/2-6);ctx.lineTo(x+w,y+h/2);ctx.lineTo(x+w-9,y+h/2+6);ctx.stroke();
+    }},
+  { type:'ground', label:'Ground', icon:'⏚', w:44,h:44,
+    draw:(ctx,o)=>{ const {x,y,w,h,color:col}=o; ctx.strokeStyle=col;ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(x+w/2,y);ctx.lineTo(x+w/2,y+h/2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x,y+h/2);ctx.lineTo(x+w,y+h/2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+8,y+h/2+9);ctx.lineTo(x+w-8,y+h/2+9);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+15,y+h/2+18);ctx.lineTo(x+w-15,y+h/2+18);ctx.stroke();
+    }},
+  // Geometric shapes
+  { type:'geo_rect', label:'Rectangle', icon:'⬜', w:80,h:50,
+    draw:(ctx,o)=>{ ctx.strokeStyle=o.color;ctx.lineWidth=o.lineW||2;
+      ctx.strokeRect(o.x,o.y,o.w,o.h);
+      if(o.fill&&o.fillColor){ctx.fillStyle=o.fillColor;ctx.fillRect(o.x,o.y,o.w,o.h);}
+    }},
+  { type:'geo_ellipse', label:'Ellipse', icon:'⭕', w:80,h:50,
+    draw:(ctx,o)=>{ ctx.strokeStyle=o.color;ctx.lineWidth=o.lineW||2;
+      ctx.beginPath();ctx.ellipse(o.x+o.w/2,o.y+o.h/2,o.w/2,o.h/2,0,0,Math.PI*2);ctx.stroke();
+      if(o.fill&&o.fillColor){ctx.fillStyle=o.fillColor;ctx.fill();}
+    }},
+  { type:'geo_triangle', label:'Triangle', icon:'🔺', w:70,h:60,
+    draw:(ctx,o)=>{ ctx.strokeStyle=o.color;ctx.lineWidth=o.lineW||2;
+      ctx.beginPath();ctx.moveTo(o.x+o.w/2,o.y);ctx.lineTo(o.x+o.w,o.y+o.h);
+      ctx.lineTo(o.x,o.y+o.h);ctx.closePath();ctx.stroke();
+      if(o.fill&&o.fillColor){ctx.fillStyle=o.fillColor;ctx.fill();}
+    }},
+  { type:'geo_arrow', label:'Arrow', icon:'➡️', w:90,h:30,
+    draw:(ctx,o)=>{ ctx.strokeStyle=o.color;ctx.lineWidth=o.lineW||2;
+      const ah=10,aw=14;
+      ctx.beginPath();ctx.moveTo(o.x,o.y+o.h/2);ctx.lineTo(o.x+o.w-aw,o.y+o.h/2);ctx.stroke();
+      ctx.fillStyle=o.color;ctx.beginPath();
+      ctx.moveTo(o.x+o.w,o.y+o.h/2);ctx.lineTo(o.x+o.w-aw,o.y+o.h/2-ah/2);
+      ctx.lineTo(o.x+o.w-aw,o.y+o.h/2+ah/2);ctx.closePath();ctx.fill();
+    }},
+  { type:'geo_line', label:'Line', icon:'╱', w:90,h:4,
+    draw:(ctx,o)=>{ ctx.strokeStyle=o.color;ctx.lineWidth=o.lineW||2;
+      ctx.beginPath();ctx.moveTo(o.x,o.y+o.h/2);ctx.lineTo(o.x+o.w,o.y+o.h/2);ctx.stroke();
+    }},
+  { type:'label_box', label:'Label/Note', icon:'📝', w:90,h:40,
+    draw:(ctx,o)=>{ ctx.strokeStyle=o.color;ctx.lineWidth=1.5;
+      ctx.strokeRect(o.x,o.y,o.w,o.h);
+      if(o.label){ctx.fillStyle=o.color;ctx.font='bold 11px system-ui';ctx.textAlign='left';
+        ctx.fillText(o.label,o.x+5,o.y+o.h/2+4);}
+    }},
+];
+
+// Group for UI
+const DS_SHAPE_GROUPS = [
+  { group:'Components', shapes:['ring_terminal','fork_terminal','pin_terminal','ferrule','twin_ferrule','splice','heat_shrink','connector_rect','wire','ground'] },
+  { group:'Geometry',   shapes:['geo_rect','geo_ellipse','geo_triangle','geo_arrow','geo_line','label_box'] },
+];
+
+let _dsSelected    = null;  // {sid, objId}
+let _dsDragging    = null;
+let _dsResizing    = null;
+let _dsRotating    = null;
+let _dsTool2       = 'select';
+let _dsColor2      = '#1a3a6c';
+let _dsLineW2      = 2;
+let _dsHistory2    = {};
+let _dsDragType    = null;
+let _dsPenStroke   = null;
+
+/* ── Sheet management ── */
+function dsAddSheet(){
+  const id='ds_'+Date.now();
+  _dsSheets.push({id,title:'Sheet '+(_dsSheets.length+1),textNotes:'',objects:[],freehand:[]});
+  buildDetailSheets(); markDirty();
+}
+function dsDeleteSheet(id){
+  if(!confirm('Delete this sheet?'))return;
+  _dsSheets=_dsSheets.filter(s=>s.id!==id);
+  if(_dsSelected?.sid===id)_dsSelected=null;
+  buildDetailSheets(); markDirty();
+}
+function dsRename(id,title){
+  const s=_dsSheets.find(s=>s.id===id);if(s){s.title=title;markDirty();}
+}
+function dsNotesChange(id,val){
+  const s=_dsSheets.find(s=>s.id===id);if(s){s.textNotes=val;markDirty();}
+}
+
+/* ── Build UI ── */
+function buildDetailSheets(){
+  const cont=document.getElementById('dsSheetsContainer');
+  const empty=document.getElementById('dsEmpty');
+  if(!cont)return;
+  if(!_dsSheets.length){cont.innerHTML='';if(empty)empty.style.display='';return;}
+  if(empty)empty.style.display='none';
+
+  const existIds=[...cont.querySelectorAll('[data-sheetid]')].map(e=>e.dataset.sheetid);
+  const currIds=_dsSheets.map(s=>s.id);
+  if(JSON.stringify(existIds)===JSON.stringify(currIds)){
+    _dsSheets.forEach(s=>dsRedraw(s.id));return;
+  }
+  cont.innerHTML='';
+  _dsSheets.forEach(s=>{if(!s.objects)s.objects=[];if(!s.freehand)s.freehand=[];cont.appendChild(dsBuildCard(s));});
+  requestAnimationFrame(()=>_dsSheets.forEach(s=>{dsRedraw(s.id);dsAttachCanvas(s.id);}));
+}
+
+function dsBuildCard(sheet){
+  const card=document.createElement('div');
+  card.dataset.sheetid=sheet.id;
+  card.style.cssText='background:#fff;border:1px solid #dde4ef;border-radius:10px;padding:12px;margin-bottom:4px;';
+
+  const shapeLibHTML=DS_SHAPE_GROUPS.map(g=>`
+    <div style="margin-bottom:6px;">
+      <div style="font-size:9px;font-weight:700;color:#2980b9;margin-bottom:3px;text-transform:uppercase;">${g.group}</div>
+      ${g.shapes.map(type=>{const sh=DS_SHAPES.find(s=>s.type===type);return sh?`
+        <div draggable="true" ondragstart="dsDragShape(event,'${type}')"
+          onclick="dsPlaceShape('${sheet.id}','${type}')"
+          style="display:flex;align-items:center;gap:5px;padding:3px 6px;background:#fff;
+            border:1px solid #edf0f7;border-radius:6px;cursor:grab;margin-bottom:2px;user-select:none;"
+          title="Drag to canvas or click">
+          <span style="font-size:12px;">${sh.icon}</span>
+          <span style="font-size:9px;color:#555;">${sh.label}</span>
+        </div>`:''}).join('')}
+    </div>`).join('');
+
+  card.innerHTML=`
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;" class="no-print">
+    <span>📎</span>
+    <input value="${escH(sheet.title)}" onchange="dsRename('${sheet.id}',this.value)"
+      style="flex:1;font-weight:700;font-size:14px;border:none;border-bottom:1px dashed #c8d4e0;outline:none;background:transparent;color:var(--primary);padding:2px 4px;">
+    <button onclick="dsDeleteSheet('${sheet.id}')"
+      style="background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;">🗑</button>
+  </div>
+  <div style="display:grid;grid-template-columns:115px 1fr;gap:10px;">
+    <!-- Shape Library -->
+    <div style="background:#f8f9fa;border-radius:8px;padding:6px;border:1px solid #edf0f7;overflow-y:auto;max-height:560px;" class="no-print">
+      <div style="font-size:9px;font-weight:700;color:#888;margin-bottom:6px;text-transform:uppercase;">Library</div>
+      ${shapeLibHTML}
+    </div>
+    <!-- Canvas area -->
+    <div>
+      <!-- Toolbar row 1: tools -->
+      <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:5px 8px;background:#f8f9fa;border-radius:8px;margin-bottom:4px;" class="no-print">
+        ${[['select','↖ Select'],['pen','✏️ Pen'],['text','T Text'],['eraser','⬜ Erase']].map(([t,l])=>`
+          <button class="ds3-tool" data-sid="${sheet.id}" data-tool="${t}"
+            onclick="dsSetTool3('${sheet.id}','${t}',this)"
+            style="padding:3px 8px;border:1px solid #c8d4e0;border-radius:6px;font-size:11px;cursor:pointer;background:${t==='select'?'#e8f4ff':'#fff'};">${l}</button>`).join('')}
+        <span style="width:1px;height:20px;background:#dde4ef;"></span>
+        <input type="color" value="#1a3a6c" title="Stroke Color"
+          onchange="dsSetColor3('${sheet.id}',this.value)"
+          style="width:26px;height:26px;border:1px solid #dde4ef;cursor:pointer;border-radius:4px;">
+        <select onchange="_dsLineW2=parseInt(this.value)"
+          style="padding:2px 5px;border:1px solid #c8d4e0;border-radius:6px;font-size:11px;">
+          <option value="1">1px</option><option value="2" selected>2px</option><option value="4">4px</option><option value="8">8px</option>
+        </select>
+        <span style="width:1px;height:20px;background:#dde4ef;"></span>
+        <button onclick="dsUndo2('${sheet.id}')" style="padding:3px 8px;border:1px solid #c8d4e0;border-radius:6px;font-size:11px;cursor:pointer;background:#fff;">↩ Undo</button>
+        <button onclick="dsClear2('${sheet.id}')" style="padding:3px 8px;border:1px solid #e74c3c;border-radius:6px;font-size:11px;cursor:pointer;background:#fff;color:#e74c3c;">🗑 Clear</button>
+        <label style="padding:3px 8px;border:1px solid #27ae60;border-radius:6px;font-size:11px;cursor:pointer;background:#fff;color:#27ae60;">
+          🖼 Image<input type="file" accept="image/*" style="display:none" onchange="dsLoadImg2('${sheet.id}',this)"></label>
+      </div>
+      <!-- Toolbar row 2: object controls (shown when selected) -->
+      <div id="dsCtrl_${sheet.id}" style="display:none;gap:5px;align-items:center;flex-wrap:wrap;padding:5px 8px;background:#e8f4ff;border-radius:8px;margin-bottom:4px;font-size:11px;" class="no-print">
+        <span style="font-weight:700;color:var(--primary);">Selected:</span>
+        <input id="dsLbl_${sheet.id}" placeholder="Label" onchange="dsObjProp('${sheet.id}','label',this.value)"
+          style="width:90px;padding:2px 6px;border:1px solid #c8d4e0;border-radius:5px;font-size:11px;">
+        <label style="font-size:10px;color:#666;">Color:
+          <input type="color" id="dsCol_${sheet.id}" onchange="dsObjProp('${sheet.id}','color',this.value)"
+            style="width:24px;height:22px;border:none;cursor:pointer;"></label>
+        <label style="font-size:10px;color:#666;">Fill:
+          <input type="checkbox" id="dsFill_${sheet.id}" onchange="dsObjProp('${sheet.id}','fill',this.checked)">
+          <input type="color" id="dsFillCol_${sheet.id}" value="#fff0cc" onchange="dsObjProp('${sheet.id}','fillColor',this.value)"
+            style="width:24px;height:22px;border:none;cursor:pointer;"></label>
+        <label style="font-size:10px;color:#666;">°Rotate:
+          <input type="number" id="dsRot_${sheet.id}" min="0" max="360" value="0" step="5"
+            onchange="dsObjProp('${sheet.id}','rotation',parseInt(this.value)||0)"
+            style="width:50px;padding:2px 4px;border:1px solid #c8d4e0;border-radius:5px;font-size:11px;"></label>
+        <label style="font-size:10px;color:#666;">LabelPos:
+          <select id="dsLblPos_${sheet.id}" onchange="dsObjProp('${sheet.id}','labelPos',this.value)"
+            style="padding:2px 4px;border:1px solid #c8d4e0;border-radius:5px;font-size:11px;">
+            <option value="bottom">Bottom</option><option value="top">Top</option>
+            <option value="left">Left</option><option value="right">Right</option><option value="none">None</option>
+          </select></label>
+        <button onclick="dsObjDelete('${sheet.id}')"
+          style="padding:2px 8px;border:1px solid #e74c3c;border-radius:5px;font-size:10px;cursor:pointer;color:#e74c3c;background:#fff;">🗑 Del</button>
+      </div>
+      <!-- Canvas -->
+      <div style="position:relative;border:1px solid #dde4ef;border-radius:6px;background:#fff;overflow:hidden;"
+        ondragover="event.preventDefault()" ondrop="dsDropShape(event,'${sheet.id}')">
+        <canvas id="dsC_${sheet.id}" width="900" height="520"
+          style="display:block;width:100%;cursor:default;touch-action:none;"></canvas>
+      </div>
+    </div>
+  </div>
+  <textarea placeholder="Notes / הערות…" rows="2" onchange="dsNotesChange('${sheet.id}',this.value)"
+    style="width:100%;margin-top:8px;padding:7px;border:1px solid #dde4ef;border-radius:6px;font-size:12px;resize:vertical;font-family:system-ui;"
+    >${escH(sheet.textNotes||'')}</textarea>`;
+
+  return card;
+}
+
+/* ── Tool ── */
+function dsSetTool3(sid,tool,btn){
+  _dsTool2=tool;
+  document.querySelectorAll(`[data-sid="${sid}"].ds3-tool`).forEach(b=>b.style.background='#fff');
+  if(btn)btn.style.background='#e8f4ff';
+  const cv=document.getElementById('dsC_'+sid);
+  if(cv)cv.style.cursor=tool==='select'?'default':tool==='eraser'?'cell':'crosshair';
+}
+function dsSetColor3(sid,val){
+  _dsColor2=val;
+  // Also apply to selected object
+  if(_dsSelected?.sid===sid) dsObjProp(sid,'color',val);
+}
+
+/* ── Object property ── */
+function dsObjProp(sid,prop,val){
+  const s=_dsSheets.find(s=>s.id===sid);
+  if(!s||!_dsSelected) return;
+  const obj=s.objects.find(o=>o.id===_dsSelected.objId);
+  if(!obj) return;
+  obj[prop]=val;
+  if(prop==='rotation'){const el=document.getElementById('dsRot_'+sid);if(el)el.value=val;}
+  dsRedraw(sid); markDirty();
+}
+function dsObjDelete(sid){
+  const s=_dsSheets.find(s=>s.id===sid);
+  if(!s||!_dsSelected) return;
+  dsSaveHistory2(sid);
+  s.objects=s.objects.filter(o=>o.id!==_dsSelected.objId);
+  _dsSelected=null;
+  dsShowCtrl(sid,null);
+  dsRedraw(sid); markDirty();
+}
+
+/* ── Select ── */
+function dsShowCtrl(sid,obj){
+  const ctrl=document.getElementById('dsCtrl_'+sid);
+  if(!ctrl) return;
+  ctrl.style.display=obj?'flex':'none';
+  if(!obj) return;
+  const lbl=document.getElementById('dsLbl_'+sid);
+  const col=document.getElementById('dsCol_'+sid);
+  const rot=document.getElementById('dsRot_'+sid);
+  const lpos=document.getElementById('dsLblPos_'+sid);
+  if(lbl) lbl.value=obj.label||'';
+  if(col) col.value=obj.color||'#1a3a6c';
+  if(rot) rot.value=obj.rotation||0;
+  if(lpos) lpos.value=obj.labelPos||'bottom';
+}
+
+/* ── Drag from library ── */
+function dsDragShape(e,type){_dsDragType=type;e.dataTransfer.effectAllowed='copy';}
+function dsDropShape(e,sid){
+  e.preventDefault();if(!_dsDragType)return;
+  const cv=document.getElementById('dsC_'+sid);if(!cv)return;
+  const r=cv.getBoundingClientRect();
+  const scaleX=cv.width/r.width,scaleY=cv.height/r.height;
+  const x=(e.clientX-r.left)*scaleX-40,y=(e.clientY-r.top)*scaleY-25;
+  dsAddObj(sid,_dsDragType,x,y);_dsDragType=null;
+}
+function dsPlaceShape(sid,type){dsAddObj(sid,type,60+Math.random()*180,60+Math.random()*140);}
+function dsAddObj(sid,type,x,y){
+  const sh=DS_SHAPES.find(s=>s.type===type)||DS_SHAPES[0];
+  const s=_dsSheets.find(s=>s.id===sid);if(!s)return;
+  dsSaveHistory2(sid);
+  s.objects.push({id:'o_'+Date.now(),type,x,y,w:sh.w,h:sh.h,
+    color:_dsColor2,label:sh.label,rotation:0,labelPos:'bottom',lineW:_dsLineW2});
+  dsRedraw(sid);markDirty();
+}
+
+/* ── Redraw ── */
+function dsRedraw(sid){
+  const cv=document.getElementById('dsC_'+sid);if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const s=_dsSheets.find(s=>s.id===sid);if(!s)return;
+
+  ctx.clearRect(0,0,cv.width,cv.height);
+  // Grid
+  ctx.strokeStyle='#f0f4f8';ctx.lineWidth=1;
+  for(let x=0;x<cv.width;x+=20){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,cv.height);ctx.stroke();}
+  for(let y=0;y<cv.height;y+=20){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cv.width,y);ctx.stroke();}
+
+  // Freehand
+  (s.freehand||[]).forEach(stroke=>{
+    if(!stroke.pts?.length)return;
+    ctx.strokeStyle=stroke.color||'#1a3a6c';ctx.lineWidth=stroke.w||2;
+    ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();stroke.pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+    ctx.stroke();
+  });
+
+  // Objects
+  (s.objects||[]).forEach(obj=>{
+    const cx=obj.x+obj.w/2,cy=obj.y+obj.h/2;
+    const rot=(obj.rotation||0)*Math.PI/180;
+
+    ctx.save();
+    ctx.translate(cx,cy);
+    if(rot)ctx.rotate(rot);
+    ctx.translate(-cx,-cy);
+
+    if(obj.type==='image'&&obj.src){
+      if(!obj._img){obj._img=new Image();obj._img.onload=()=>dsRedraw(sid);obj._img.src=obj.src;}
+      if(obj._img.complete&&obj._img.naturalWidth>0)ctx.drawImage(obj._img,obj.x,obj.y,obj.w,obj.h);
+    } else {
+      const sh=DS_SHAPES.find(s=>s.type===obj.type);
+      if(sh?.draw)sh.draw(ctx,obj);
+    }
+
+    // Label
+    const lp=obj.labelPos||'bottom';
+    if(obj.label&&lp!=='none'){
+      ctx.fillStyle='#333';ctx.font='bold 10px system-ui';
+      if(lp==='bottom'){ctx.textAlign='center';ctx.fillText(obj.label,obj.x+obj.w/2,obj.y+obj.h+13);}
+      else if(lp==='top'){ctx.textAlign='center';ctx.fillText(obj.label,obj.x+obj.w/2,obj.y-5);}
+      else if(lp==='left'){ctx.textAlign='right';ctx.fillText(obj.label,obj.x-5,obj.y+obj.h/2+4);}
+      else if(lp==='right'){ctx.textAlign='left';ctx.fillText(obj.label,obj.x+obj.w+5,obj.y+obj.h/2+4);}
+    }
+
+    ctx.restore();
+
+    // Selection (no rotation for handles)
+    if(_dsSelected?.objId===obj.id){
+      ctx.save();ctx.translate(cx,cy);if(rot)ctx.rotate(rot);ctx.translate(-cx,-cy);
+      ctx.strokeStyle='#2980b9';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+      ctx.strokeRect(obj.x-5,obj.y-5,obj.w+10,obj.h+10);ctx.setLineDash([]);
+      // Resize handle (bottom-right)
+      ctx.fillStyle='#2980b9';ctx.fillRect(obj.x+obj.w-6,obj.y+obj.h-6,12,12);
+      ctx.restore();
+      // Rotate handle (top center, no rotation — always at top)
+      const rhx=cx,rhy=obj.y-24;
+      ctx.save();ctx.translate(cx,cy);if(rot)ctx.rotate(rot);ctx.translate(-cx,-cy);
+      ctx.strokeStyle='#27ae60';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(cx,obj.y-5);ctx.lineTo(cx,rhy+6);ctx.stroke();
+      ctx.fillStyle='#27ae60';ctx.beginPath();ctx.arc(cx,rhy,7,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillText('↻',cx,rhy+3);
+      ctx.restore();
+    }
+  });
+
+  // Save for print
+  s.imageData=cv.toDataURL('image/png');
+}
+
+/* ── Hit detection ── */
+function dsHitObj(p,s,ctx_rot){
+  return [...(s.objects||[])].reverse().find(o=>{
+    const cx=o.x+o.w/2,cy=o.y+o.h/2;
+    const rot=-(o.rotation||0)*Math.PI/180;
+    // Rotate point into object space
+    const dx=p.x-cx,dy=p.y-cy;
+    const rx=dx*Math.cos(rot)-dy*Math.sin(rot)+cx;
+    const ry=dx*Math.sin(rot)+dy*Math.cos(rot)+cy;
+    return rx>=o.x-6&&rx<=o.x+o.w+6&&ry>=o.y-6&&ry<=o.y+o.h+6;
+  });
+}
+function dsHitResize(p,o){
+  const cx=o.x+o.w/2,cy=o.y+o.h/2;
+  const rot=-(o.rotation||0)*Math.PI/180;
+  const hx=o.x+o.w,hy=o.y+o.h;
+  // Rotate handle position
+  const dx=hx-cx,dy=hy-cy;
+  const rhx=dx*Math.cos(-rot)-dy*Math.sin(-rot)+cx;
+  const rhy=dx*Math.sin(-rot)+dy*Math.cos(-rot)+cy;
+  return Math.hypot(p.x-rhx,p.y-rhy)<10;
+}
+function dsHitRotate(p,o){
+  const cx=o.x+o.w/2,cy=o.y+o.h/2;
+  const rot=(o.rotation||0)*Math.PI/180;
+  // Rotate handle is at top-center in object space
+  const rhx_local=cx,rhy_local=o.y-24;
+  const dx=rhx_local-cx,dy=rhy_local-cy;
+  const rhx=dx*Math.cos(rot)-dy*Math.sin(rot)+cx;
+  const rhy=dx*Math.sin(rot)+dy*Math.cos(rot)+cy;
+  return Math.hypot(p.x-rhx,p.y-rhy)<12;
+}
+
+/* ── Canvas events ── */
+function dsAttachCanvas(sid){
+  const cv=document.getElementById('dsC_'+sid);
+  if(!cv||cv._ds3)return;cv._ds3=true;
+
+  function getPos(e){
+    const r=cv.getBoundingClientRect(),sx=cv.width/r.width,sy=cv.height/r.height;
+    const src=e.touches?e.touches[0]:e;
+    return{x:(src.clientX-r.left)*sx,y:(src.clientY-r.top)*sy};
+  }
+
+  cv.addEventListener('mousedown',e=>{
+    e.preventDefault();
+    const p=getPos(e);
+    const s=_dsSheets.find(s=>s.id===sid);
+
+    if(_dsTool2==='select'){
+      const obj=dsHitObj(p,s);
+      if(obj){
+        if(dsHitRotate(p,obj)){
+          _dsRotating={sid,obj,cx:obj.x+obj.w/2,cy:obj.y+obj.h/2,startAngle:Math.atan2(p.y-(obj.y+obj.h/2),p.x-(obj.x+obj.w/2)),origRot:obj.rotation||0};
+        } else if(dsHitResize(p,obj)){
+          _dsResizing={sid,obj,startX:p.x,startY:p.y,origW:obj.w,origH:obj.h,origX:obj.x,origY:obj.y};
+        } else {
+          _dsDragging={sid,obj,offX:p.x-obj.x,offY:p.y-obj.y};
+        }
+        _dsSelected={sid,objId:obj.id};
+        dsShowCtrl(sid,obj);
+      } else {
+        _dsSelected=null;dsShowCtrl(sid,null);
+      }
+      dsRedraw(sid);
+    } else if(_dsTool2==='pen'||_dsTool2==='eraser'){
+      dsSaveHistory2(sid);
+      if(!s.freehand)s.freehand=[];
+      _dsPenStroke={pts:[{x:p.x,y:p.y}],color:_dsTool2==='eraser'?'#fff':_dsColor2,w:_dsTool2==='eraser'?_dsLineW2*6:_dsLineW2};
+      s.freehand.push(_dsPenStroke);
+    } else if(_dsTool2==='text'){
+      const txt=prompt('Enter text:');
+      if(txt){dsSaveHistory2(sid);dsAddObj(sid,'label_box',p.x,p.y);
+        const s2=_dsSheets.find(s=>s.id===sid);
+        const last=s2.objects[s2.objects.length-1];
+        if(last){last.label=txt;last.w=Math.max(80,txt.length*7);last.h=28;}
+        dsRedraw(sid);}
+    }
+  });
+
+  cv.addEventListener('mousemove',e=>{
+    const p=getPos(e);
+    if(_dsDragging&&_dsDragging.sid===sid){
+      _dsDragging.obj.x=p.x-_dsDragging.offX;
+      _dsDragging.obj.y=p.y-_dsDragging.offY;
+      dsRedraw(sid);
+    } else if(_dsResizing&&_dsResizing.sid===sid){
+      const r=_dsResizing;
+      // Apply resize respecting rotation
+      r.obj.w=Math.max(20,r.origW+(p.x-r.startX));
+      r.obj.h=Math.max(20,r.origH+(p.y-r.startY));
+      dsRedraw(sid);
+    } else if(_dsRotating&&_dsRotating.sid===sid){
+      const r=_dsRotating;
+      const angle=Math.atan2(p.y-r.cy,p.x-r.cx);
+      let deg=Math.round(((angle-r.startAngle)*180/Math.PI+r.origRot+360)%360);
+      if(e.shiftKey)deg=Math.round(deg/15)*15; // snap to 15°
+      r.obj.rotation=deg;
+      const rotEl=document.getElementById('dsRot_'+sid);if(rotEl)rotEl.value=deg;
+      dsRedraw(sid);
+    } else if(_dsPenStroke){
+      const p2=getPos(e);_dsPenStroke.pts.push({x:p2.x,y:p2.y});dsRedraw(sid);
+    }
+  });
+
+  function endAll(){
+    if(_dsDragging||_dsResizing||_dsRotating)markDirty();
+    _dsDragging=null;_dsResizing=null;_dsRotating=null;
+    if(_dsPenStroke){_dsPenStroke=null;markDirty();}
+  }
+  cv.addEventListener('mouseup',endAll);
+  cv.addEventListener('mouseleave',endAll);
+  cv.addEventListener('touchstart',e=>{e.preventDefault();cv.dispatchEvent(new MouseEvent('mousedown',{clientX:e.touches[0].clientX,clientY:e.touches[0].clientY}));},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();cv.dispatchEvent(new MouseEvent('mousemove',{clientX:e.touches[0].clientX,clientY:e.touches[0].clientY}));},{passive:false});
+  cv.addEventListener('touchend',endAll);
+}
+
+/* ── Undo/Clear ── */
+function dsSaveHistory2(sid){
+  if(!_dsHistory2[sid])_dsHistory2[sid]=[];
+  const s=_dsSheets.find(s=>s.id===sid);
+  if(s)_dsHistory2[sid].push(JSON.stringify({objects:s.objects.map(o=>{const{_img,...r}=o;return r;}),freehand:s.freehand}));
+  if(_dsHistory2[sid].length>30)_dsHistory2[sid].shift();
+}
+function dsUndo2(sid){
+  if(!_dsHistory2[sid]?.length)return;
+  const s=_dsSheets.find(s=>s.id===sid);if(!s)return;
+  const prev=JSON.parse(_dsHistory2[sid].pop());
+  s.objects=prev.objects||[];s.freehand=prev.freehand||[];
+  dsRedraw(sid);markDirty();
+}
+function dsClear2(sid){
+  if(!confirm('Clear canvas?'))return;
+  const s=_dsSheets.find(s=>s.id===sid);if(!s)return;
+  dsSaveHistory2(sid);s.objects=[];s.freehand=[];
+  dsRedraw(sid);markDirty();
+}
+
+/* ── Load image as object ── */
+
+function dsLoadImg2(sid, input) {
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const s=_dsSheets.find(s=>s.id===sid);
+    if(!s) return;
+    dsSaveHistory2(sid);
+    // Create image object — movable + resizable
+    const img=new Image();
+    img.onload=()=>{
+      const cv=document.getElementById('dsC_'+sid);
+      if(!cv) return;
+      // Scale to fit nicely (max 400px wide)
+      const maxW=Math.min(400, cv.width*0.6);
+      const scale=Math.min(maxW/img.width, 300/img.height, 1);
+      const w=Math.round(img.width*scale);
+      const h=Math.round(img.height*scale);
+      if(!s.objects) s.objects=[];
+      s.objects.push({
+        id:'o_'+Date.now(), type:'image',
+        x:40, y:40, w, h,
+        src:e.target.result,
+        color:'#1a3a6c', label:'Image'
+      });
+      dsRedraw(sid); markDirty();
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+  input.value='';
 }
 </script>
 
