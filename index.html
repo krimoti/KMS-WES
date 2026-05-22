@@ -7381,7 +7381,7 @@ function dsHitObj(p,s,ctx_rot){
     const dx=p.x-cx,dy=p.y-cy;
     const rx=dx*Math.cos(rot)-dy*Math.sin(rot)+cx;
     const ry=dx*Math.sin(rot)+dy*Math.cos(rot)+cy;
-    return rx>=o.x-6&&rx<=o.x+o.w+6&&ry>=o.y-6&&ry<=o.y+o.h+6;
+    return rx>=o.x-8&&rx<=o.x+o.w+8&&ry>=o.y-8&&ry<=o.y+o.h+8;
   });
 }
 function dsHitResize(p,o){
@@ -7418,11 +7418,23 @@ function dsAttachCanvas(sid){
     const s=_dsSheets.find(s=>s.id===sid);
 
     if(_dsTool2==='select'){
+      // ── Check rotate handle of CURRENTLY selected object FIRST ──
+      // (handle is outside object bounds, so dsHitObj won't find it)
+      if(_dsSelected&&_dsSelected.sid===sid){
+        const curObj=s.objects.find(o=>o.id===_dsSelected.objId);
+        if(curObj&&dsHitRotate(p,curObj)){
+          _dsRotating={sid,obj:curObj,
+            cx:curObj.x+curObj.w/2,cy:curObj.y+curObj.h/2,
+            startAngle:Math.atan2(p.y-(curObj.y+curObj.h/2),p.x-(curObj.x+curObj.w/2)),
+            origRot:curObj.rotation||0};
+          cv.style.cursor='grabbing';
+          dsRedraw(sid);
+          return; // ← don't fall through to deselect
+        }
+      }
       const obj=dsHitObj(p,s);
       if(obj){
-        if(dsHitRotate(p,obj)){
-          _dsRotating={sid,obj,cx:obj.x+obj.w/2,cy:obj.y+obj.h/2,startAngle:Math.atan2(p.y-(obj.y+obj.h/2),p.x-(obj.x+obj.w/2)),origRot:obj.rotation||0};
-        } else if(dsHitResize(p,obj)){
+        if(dsHitResize(p,obj)){
           _dsResizing={sid,obj,startX:p.x,startY:p.y,origW:obj.w,origH:obj.h,origX:obj.x,origY:obj.y};
         } else {
           _dsDragging={sid,obj,offX:p.x-obj.x,offY:p.y-obj.y};
