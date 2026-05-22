@@ -2596,7 +2596,13 @@ function buildConnSummary(){
 
 /* ═══ LABOR ═══ */
 function buildLabor(){
-  const rows=getRows();const n=rows.length;
+  // Only count rows with wire number + wire size + at least one terminal/connector
+  const rows=getRows().filter(r=>{
+    const hasWire=(r.wireNo||'').trim()&&(r.wireSize||'').trim();
+    const hasEnd=(r.cmp1||'').trim()||(r.cmp2||'').trim()||(r.pin1type||'').trim()||(r.pin2type||'').trim();
+    return hasWire&&hasEnd;
+  });
+  const n=rows.length;
   if(!n){document.getElementById('laborBody').innerHTML='<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">No wiring rows.</td></tr>';return;}
   const factor=projectType==='development'?1.5:1.0;
   const factorLabel=projectType==='development'?'Development ×1.5':'Mass Production ×1.0';
