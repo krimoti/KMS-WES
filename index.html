@@ -2195,8 +2195,27 @@ function renderDBTerm(){const b=document.getElementById('dbTermBody');b.innerHTM
 function addDBTermRow(){dbTerm.push({type:'',pn:'',exposure:'5'});renderDBTerm();markDirty();}
 function delDBTermRow(i){dbTerm.splice(i,1);renderDBTerm();updateWiringLookups();markDirty();}
 
-function renderDBWire(){const b=document.getElementById('dbWireBody');b.innerHTML='';dbWire.forEach((r,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><input value="${escH(r.size)}" oninput="dbWire[${i}].size=this.value;refreshDBLists();updateWiringLookups();markDirty()"></td><td><input value="${escH(r.pn)}" oninput="dbWire[${i}].pn=this.value;updateWiringLookups();markDirty()"></td><td class="no-print" style="text-align:center;"><button class="btn-delete" style="margin:0" onclick="delDBWireRow(${i})">🗑</button></td>`;b.appendChild(tr);});}
-function addDBWireRow(){dbWire.push({size:'',pn:''});renderDBWire();markDirty();}
+function renderDBWire(){
+  const b=document.getElementById('dbWireBody');
+  b.innerHTML='';
+  dbWire.forEach((r,i)=>{
+    if(!r.unit) r.unit='awg'; // default
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><input value="${escH(r.size)}" oninput="dbWire[${i}].size=this.value;refreshDBLists();updateWiringLookups();markDirty()"></td>
+      <td><input value="${escH(r.pn||'')}" oninput="dbWire[${i}].pn=this.value;markDirty()"></td>
+      <td><select onchange="dbWire[${i}].unit=this.value;markDirty()"
+        style="padding:4px 6px;border:1px solid #c8d4e0;border-radius:6px;font-size:12px;width:100%;">
+        <option value="awg" ${(r.unit||'awg')==='awg'?'selected':''}>AWG</option>
+        <option value="mm2" ${r.unit==='mm2'?'selected':''}>mm²</option>
+      </select></td>
+      <td class="no-print" style="text-align:center;">
+        <button class="btn-delete" style="margin:0" onclick="delDBWireRow(${i})">🗑</button>
+      </td>`;
+    b.appendChild(tr);
+  });
+}
+function addDBWireRow(){dbWire.push({size:'',pn:'',unit:'awg'});renderDBWire();markDirty();}
 function delDBWireRow(i){dbWire.splice(i,1);renderDBWire();updateWiringLookups();markDirty();}
 
 function renderDBMarker(){const b=document.getElementById('dbMarkerBody');b.innerHTML='';dbMarker.forEach((r,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><input value="${escH(r.size)}" oninput="dbMarker[${i}].size=this.value;markDirty()"></td><td><input value="${escH(r.pn)}" oninput="dbMarker[${i}].pn=this.value;markDirty()"></td><td class="no-print" style="text-align:center;"><button class="btn-delete" style="margin:0" onclick="delDBMarkerRow(${i})">🗑</button></td>`;b.appendChild(tr);});}
@@ -5509,13 +5528,23 @@ function parseAllAWG(s){
 }
 function checkAWGcompat(wireSize,termType){
   if(!wireSize||!termType) return null;
-  const wa=parseAllAWG(wireSize), ta=parseAllAWG(termType);
+  // Check DB for unit info — if wire is mm², annotate
+  const dbEntry=dbWire.find(w=>w.size===wireSize||(w.size&&wireSize.includes(w.size)));
+  let wsToCheck=wireSize;
+  if(dbEntry&&dbEntry.unit==='mm2'){
+    // Extract numeric value and append mm² if not present
+    if(!/mm[²2]/i.test(wsToCheck)){
+      const num=wsToCheck.match(/(\d+(?:[.,]\d+)?)/);
+      if(num) wsToCheck=num[1]+'mm²';
+    }
+  }
+  const wa=parseAllAWG(wsToCheck), ta=parseAllAWG(termType);
   if(!wa.length||!ta.length) return null;
   for(const w of wa) for(const t of ta)
     if(w.min<=t.max&&w.max>=t.min) return null;
-  const wd=wa.map(r=>r.fromMM2?`${r.fromMM2}mm²≈AWG${r.min}-${r.max}`:`AWG${r.min===r.max?r.min:r.min+'-'+r.max}`).join('/');
+  const wd=wa.map(r=>r.mm2?`${r.mm2}mm²≈AWG${r.min}-${r.max}`:`AWG${r.min===r.max?r.min:r.min+'-'+r.max}`).join('/');
   const td=ta.map(r=>`AWG${r.min===r.max?r.min:r.min+'-'+r.max}`).join('/');
-  return {wireDesc:wd,termDesc:td};
+  return{wireDesc:wd,termDesc:td};
 }
 
 /* ── Update Save/Export button visual state based on validation ── */
